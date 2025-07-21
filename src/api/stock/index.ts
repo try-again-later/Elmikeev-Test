@@ -1,0 +1,21 @@
+export type Stock = {
+  date: string;
+  last_change_date: string | null;
+  supplier_article: string;
+  tech_size: string;
+  barcode: number;
+  quantity: number;
+  is_supply: boolean | null;
+  is_realization: boolean | null;
+  quantity_full: boolean | null;
+  warehouse_name: string;
+  in_way_to_client: boolean | null;
+  in_way_from_client: boolean | null;
+  nm_id: number;
+  subject: string;
+  category: string;
+  brand: string;
+  sc_code: number;
+  price: string | null;
+  discount: string;
+};

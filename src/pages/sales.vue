@@ -1,7 +1,7 @@
 <template>
   <h1>Продажи</h1>
   <template v-if="response != null">
-    <v-table striped="even">
+    <v-table fixed-header striped="even">
       <thead>
         <tr>
           <th>ID</th>
@@ -30,7 +30,7 @@
       <v-pagination
         v-model="page"
         :length="response.meta.last_page"
-        :total-visible="5"
+        :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
     </div>
   </template>
@@ -50,7 +50,7 @@ const url = computed(
       dateFrom: new Date(Date.now() - (24 * 60 * 60 * 1000) * 10),
       dateTo: new Date(),
       page: page.value,
-      limit: 10,
+      limit: 100,
     }).href
 );
 
