@@ -19,8 +19,6 @@
           @click="drawerVisible = !drawerVisible"
         />
 
-        <div class="text-h6 mr-8">Elmikeev Test</div>
-
         <template v-if="$vuetify.display.mdAndUp">
           <v-btn
             v-for="item in navItems"
@@ -55,24 +53,24 @@ const drawerVisible = ref(false);
 
 const navItems = [
   {
-    title: 'Incomes',
-    route: 'incomes',
-    icon: 'mdi-truck-delivery',
-  },
-  {
-    title: 'Orders',
-    route: 'orders',
-    icon: 'mdi-cart',
-  },
-  {
-    title: 'Sales',
+    title: 'Продажи',
     route: 'sales',
     icon: 'mdi-cash-plus',
   },
   {
-    title: 'Stocks',
+    title: 'Заказы',
+    route: 'orders',
+    icon: 'mdi-cart',
+  },
+  {
+    title: 'Склады',
     route: 'stocks',
     icon: 'mdi-warehouse',
+  },
+  {
+    title: 'Доходы',
+    route: 'incomes',
+    icon: 'mdi-hand-coin',
   },
 ];
 </script>

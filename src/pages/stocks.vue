@@ -1,3 +1,3 @@
 <template>
-  <h1>Stocks</h1>
+  <h1>Склады</h1>
 </template>

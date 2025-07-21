@@ -1,3 +1,3 @@
 <template>
-  <h1>Incomes</h1>
+  <h1>Доходы</h1>
 </template>
