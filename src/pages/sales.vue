@@ -190,7 +190,13 @@ const chartData = computed(() => {
 
   return {
     labels: regions,
-    datasets: [{ data, label: "Полная сумма по региону" }],
+    datasets: [
+      {
+        data,
+        label: "Полная сумма по региону",
+        backgroundColor: "rgb(255, 99, 132)",
+      },
+    ],
   };
 });
 </script>

@@ -186,7 +186,13 @@ const chartData = computed(() => {
 
   return {
     labels: warehouses,
-    datasets: [{ data, label: "Суммарное количество в каждом складе" }],
+    datasets: [
+      {
+        data,
+        label: "Суммарное количество в каждом складе",
+        backgroundColor: "rgb(255, 99, 132)",
+      },
+    ],
   };
 });
 </script>
