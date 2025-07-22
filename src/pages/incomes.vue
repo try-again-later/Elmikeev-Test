@@ -8,12 +8,48 @@
       <v-date-input label="Заканчивая датой" v-model="dateTo"></v-date-input>
     </v-col>
   </v-row>
+  <v-row>
+    <v-col cols="12" md="1" class="d-flex align-center">Количество:</v-col>
+    <v-col>
+      <v-range-slider
+        v-model="quantityRange"
+        :max="quantityMax"
+        :min="quantityMin"
+        :step="1"
+        class="align-center"
+        hide-details
+      >
+        <template v-slot:prepend>
+          <v-text-field
+            v-model="quantityRange[0]"
+            density="compact"
+            style="width: 100px"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+          ></v-text-field>
+        </template>
+        <template v-slot:append>
+          <v-text-field
+            v-model="quantityRange[1]"
+            density="compact"
+            style="width: 100px"
+            type="number"
+            variant="outlined"
+            hide-details
+            single-line
+          ></v-text-field>
+        </template>
+      </v-range-slider>
+    </v-col>
+  </v-row>
   <v-sheet v-if="error != null" class="d-flex flex-column ga-4 align-center">
     <p>Ошибка при загрузке данных</p>
     <v-btn @click="execute">Попробовать ещё раз</v-btn>
   </v-sheet>
-  <template v-if="response != null && error == null">
-    <v-table fixed-header striped="even">
+  <template v-if="error == null">
+    <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
           <th>Штрих-код</th>
@@ -24,7 +60,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in response.data">
+        <tr v-for="item in filteredData">
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
           <td>{{ item.date_close }}</td>
@@ -37,7 +73,7 @@
     <div class="text-center">
       <v-pagination
         v-model="page"
-        :length="response.meta.last_page"
+        :length="response?.meta.last_page"
         :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
         :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
@@ -86,5 +122,36 @@ const {
 const { isLoading } = useNProgress();
 watch(isFetching, (value) => {
   isLoading.value = value;
+});
+
+const quantityMin = ref(0);
+const quantityMax = ref(0);
+const quantityRange = ref([quantityMin.value, quantityMax.value]);
+
+watch(response, (newResponse) => {
+  if (newResponse != null) {
+    quantityMin.value = 0;
+    quantityMax.value = Math.max(
+      Math.ceil(
+        newResponse.data.reduce((max, item) => Math.max(max, item.quantity), 0)
+      ),
+      quantityMax.value
+    );
+
+    if (quantityRange.value[1] == 0) {
+      quantityRange.value = [quantityMin.value, quantityMax.value];
+    }
+  }
+});
+
+const filteredData = computed(() => {
+  if (response.value == null) {
+    return [];
+  }
+  return response.value.data.filter(
+    (item) =>
+      quantityRange.value[0] <= item.quantity &&
+      item.quantity <= quantityRange.value[1]
+  );
 });
 </script>

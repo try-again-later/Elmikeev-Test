@@ -1,7 +1,23 @@
 <template>
   <h1 class="mb-8">Склады</h1>
-  <template v-if="response != null">
-    <v-table fixed-header striped="even">
+  <v-row>
+    <v-col cols="12" sm="6">
+      <v-select
+        label="В пути к клиенту"
+        v-model="inWayToClient"
+        :items="['Да', 'Нет', 'Не важно']"
+      ></v-select>
+    </v-col>
+    <v-col cols="12" sm="6">
+      <v-select
+        label="В пути от клиента"
+        v-model="inWayFromClient"
+        :items="['Да', 'Нет', 'Не важно']"
+      ></v-select>
+    </v-col>
+  </v-row>
+  <template v-if="error == null">
+    <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
           <th>Штрих-код</th>
@@ -13,7 +29,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in response.data">
+        <tr v-for="item in filteredData">
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
           <td>{{ item.warehouse_name }}</td>
@@ -27,7 +43,7 @@
     <div class="text-center">
       <v-pagination
         v-model="page"
-        :length="response.meta.last_page"
+        :length="response?.meta.last_page"
         :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
         :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
@@ -56,7 +72,34 @@ const url = computed(
     }).href
 );
 
-const { data: response } = useFetch(url, { refetch: true })
+const { error, data: response } = useFetch(url, { refetch: true })
   .get()
   .json<StocksListResponse>();
+
+type BooleanFilter = "Да" | "Нет" | "Не важно";
+
+const inWayToClient = ref<BooleanFilter>("Не важно");
+const inWayFromClient = ref<BooleanFilter>("Не важно");
+
+const filteredData = computed(() => {
+  if (response.value == null) {
+    return [];
+  }
+  return response.value.data.filter((item) => {
+    let isIncluded = true;
+
+    if (inWayToClient.value != "Не важно") {
+      isIncluded &&=
+        (inWayToClient.value == "Да" && item.in_way_to_client) ||
+        (inWayToClient.value == "Нет" && !item.in_way_to_client);
+    }
+    if (inWayFromClient.value != "Не важно") {
+      isIncluded &&=
+        (inWayFromClient.value == "Да" && item.in_way_from_client) ||
+        (inWayFromClient.value == "Нет" && !item.in_way_from_client);
+    }
+
+    return isIncluded;
+  });
+});
 </script>
