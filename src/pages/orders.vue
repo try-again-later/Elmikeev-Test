@@ -8,12 +8,26 @@
       <v-date-input label="Заканчивая датой" v-model="dateTo"></v-date-input>
     </v-col>
   </v-row>
+  <div class="d-flex align-center ga-4">
+    <v-btn
+      :disabled="warehouseNamesFilter.length == warehouseNames.length"
+      @click="warehouseNamesFilter = warehouseNames"
+      >Сбросить</v-btn
+    >
+    <v-select
+      v-model="warehouseNamesFilter"
+      :items="warehouseNames"
+      label="Названия складов"
+      multiple
+      persistent-hint
+    ></v-select>
+  </div>
   <v-sheet v-if="error != null" class="d-flex flex-column ga-4 align-center">
     <p>Ошибка при загрузке данных</p>
     <v-btn @click="execute">Попробовать ещё раз</v-btn>
   </v-sheet>
-  <template v-if="response != null && error == null">
-    <v-table fixed-header striped="even">
+  <template v-if="error == null">
+    <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
           <th>Штрих-код</th>
@@ -26,7 +40,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in response.data">
+        <tr v-for="item in filteredData">
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
           <td>{{ parseFloat(item.total_price).toFixed(2) }}</td>
@@ -41,7 +55,7 @@
     <div class="text-center">
       <v-pagination
         v-model="page"
-        :length="response.meta.last_page"
+        :length="response?.meta.last_page"
         :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
         :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
@@ -90,5 +104,34 @@ const {
 const { isLoading } = useNProgress();
 watch(isFetching, (value) => {
   isLoading.value = value;
+});
+
+const warehouseNames = ref<string[]>([]);
+const warehouseNamesFilter = ref<string[]>([]);
+
+watch(response, (newResponse) => {
+  if (newResponse != null) {
+    const selectionWasFull =
+      warehouseNames.value.length == warehouseNamesFilter.value.length;
+
+    warehouseNames.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.warehouse_name),
+        ...warehouseNames.value,
+      ]),
+    ];
+    if (warehouseNamesFilter.value.length == 0 || selectionWasFull) {
+      warehouseNamesFilter.value = warehouseNames.value;
+    }
+  }
+});
+
+const filteredData = computed(() => {
+  if (response.value == null) {
+    return [];
+  }
+  return response.value.data.filter((item) =>
+    warehouseNamesFilter.value.includes(item.warehouse_name)
+  );
 });
 </script>

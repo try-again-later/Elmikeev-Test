@@ -131,14 +131,20 @@ const totalPriceRange = ref([totalPriceMin.value, totalPriceMax.value]);
 watch(response, (newResponse) => {
   if (newResponse != null) {
     totalPriceMin.value = 0;
-    totalPriceMax.value = Math.ceil(
-      newResponse.data.reduce(
-        (max, item) => Math.max(max, Number.parseFloat(item.total_price) || 0),
-        0
-      )
+    totalPriceMax.value = Math.max(
+      Math.ceil(
+        newResponse.data.reduce(
+          (max, item) =>
+            Math.max(max, Number.parseFloat(item.total_price) || 0),
+          0
+        )
+      ),
+      totalPriceMax.value
     );
 
-    totalPriceRange.value = [totalPriceMin.value, totalPriceMax.value];
+    if (totalPriceRange.value[1] == 0) {
+      totalPriceRange.value = [totalPriceMin.value, totalPriceMax.value];
+    }
   }
 });
 
