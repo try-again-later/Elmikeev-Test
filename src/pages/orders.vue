@@ -1,5 +1,14 @@
 <template>
   <h1 class="mb-8">Заказы</h1>
+  <div style="position: relative; height: 500px; width: 100%">
+    <Bar
+      :data="chartData"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+      }"
+    />
+  </div>
   <v-row>
     <v-col cols="12" sm="6">
       <v-date-input label="Начиная с даты" v-model="dateFrom"></v-date-input>
@@ -73,6 +82,7 @@ import {
 } from "@/api/order/list";
 import useDateRangeQuery from "@/composables/useDateRangeQuery";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
+import { Bar } from "vue-chartjs";
 
 const { dateFrom, dateTo } = useDateRangeQuery();
 
@@ -133,5 +143,24 @@ const filteredData = computed(() => {
   return response.value.data.filter((item) =>
     warehouseNamesFilter.value.includes(item.warehouse_name)
   );
+});
+
+const chartData = computed(() => {
+  const warehouses = [
+    ...new Set(filteredData.value.map((item) => item.warehouse_name)),
+  ];
+  const data = [];
+  for (const warehouse of warehouses) {
+    const orderCount = filteredData.value.reduce(
+      (count, item) => (item.warehouse_name == warehouse ? 1 : 0) + count,
+      0
+    );
+    data.push(orderCount);
+  }
+
+  return {
+    labels: warehouses,
+    datasets: [{ data, label: "Количество заказов по каждому складу" }],
+  };
 });
 </script>

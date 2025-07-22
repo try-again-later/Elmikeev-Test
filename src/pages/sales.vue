@@ -1,6 +1,6 @@
 <template>
   <h1 class="mb-8">Продажи</h1>
-  <div style="position: relative; height: 500px; width: 100%">
+  <v-sheet class="position-relative" height="500">
     <Bar
       :data="chartData"
       :options="{
@@ -8,7 +8,7 @@
         maintainAspectRatio: false,
       }"
     />
-  </div>
+  </v-sheet>
   <v-row>
     <v-col cols="12" sm="6">
       <v-date-input label="Начиная с даты" v-model="dateFrom"></v-date-input>

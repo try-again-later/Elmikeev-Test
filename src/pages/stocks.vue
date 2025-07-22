@@ -1,6 +1,56 @@
 <template>
   <h1 class="mb-8">Склады</h1>
   <v-row>
+    <v-col cols="12" sm="6" class="position-relative" height="500">
+      <Pie
+        :data="{
+          labels: ['Да', 'Нет'],
+          datasets: [
+            {
+              label: 'В пути к клиенту',
+              data: inWayToClientChartData,
+              backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)'],
+            },
+          ],
+        }"
+        :options="{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'В пути к клиенту',
+            },
+          },
+        }"
+      />
+    </v-col>
+    <v-col cols="12" sm="6" class="position-relative" height="500">
+      <Pie
+        :data="{
+          labels: ['Да', 'Нет'],
+          datasets: [
+            {
+              label: 'В пути от клиента',
+              data: inWayFromClientChartData,
+              backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)'],
+            },
+          ],
+        }"
+        :options="{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'В пути от клиента',
+            },
+          },
+        }"
+      />
+    </v-col>
+  </v-row>
+  <v-row>
     <v-col cols="12" sm="6">
       <v-select
         label="В пути к клиенту"
@@ -60,6 +110,7 @@ import {
   type StocksListResponse,
 } from "@/api/stock/list";
 import { startOfToday } from "date-fns";
+import { Pie } from "vue-chartjs";
 
 const page = useRouteQuery("page", "1", { transform: Number });
 const url = computed(
@@ -101,5 +152,27 @@ const filteredData = computed(() => {
 
     return isIncluded;
   });
+});
+
+const inWayToClientChartData = computed(() => {
+  const chartData = [0, 0];
+  chartData[0] = filteredData.value.reduce(
+    (count, item) => count + (item.in_way_to_client ? 1 : 0),
+    0
+  );
+  chartData[1] = filteredData.value.length - chartData[0];
+
+  return chartData;
+});
+
+const inWayFromClientChartData = computed(() => {
+  const chartData = [0, 0];
+  chartData[0] = filteredData.value.reduce(
+    (count, item) => count + (item.in_way_from_client ? 1 : 0),
+    0
+  );
+  chartData[1] = filteredData.value.length - chartData[0];
+
+  return chartData;
 });
 </script>

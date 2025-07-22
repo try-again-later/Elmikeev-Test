@@ -1,5 +1,14 @@
 <template>
   <h1 class="mb-8">Доходы</h1>
+  <v-sheet class="position-relative" height="500">
+    <Bar
+      :data="chartData"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+      }"
+    />
+  </v-sheet>
   <v-row>
     <v-col cols="12" sm="6">
       <v-date-input label="Начиная с даты" v-model="dateFrom"></v-date-input>
@@ -9,7 +18,7 @@
     </v-col>
   </v-row>
   <v-row>
-    <v-col cols="12" md="1" class="d-flex align-center">Количество:</v-col>
+    <v-col cols="12" md="1" class="d-flex align-center">Фильтр по количеству:</v-col>
     <v-col>
       <v-range-slider
         v-model="quantityRange"
@@ -91,6 +100,7 @@ import {
 } from "@/api/income/list";
 import useDateRangeQuery from "@/composables/useDateRangeQuery";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
+import { Bar } from "vue-chartjs";
 
 const { dateFrom, dateTo } = useDateRangeQuery();
 
@@ -153,5 +163,25 @@ const filteredData = computed(() => {
       quantityRange.value[0] <= item.quantity &&
       item.quantity <= quantityRange.value[1]
   );
+});
+
+const chartData = computed(() => {
+  const warehouses = [
+    ...new Set(filteredData.value.map((item) => item.warehouse_name)),
+  ];
+  const data = [];
+  for (const warehouse of warehouses) {
+    const regionSum = filteredData.value.reduce(
+      (sum, item) =>
+        (item.warehouse_name == warehouse ? item.quantity : 0) + sum,
+      0
+    );
+    data.push(regionSum);
+  }
+
+  return {
+    labels: warehouses,
+    datasets: [{ data, label: "Суммарное количество в каждом складе" }],
+  };
 });
 </script>
