@@ -1,5 +1,14 @@
 <template>
   <h1 class="mb-8">Продажи</h1>
+  <div style="position: relative; height: 500px; width: 100%">
+    <Bar
+      :data="chartData"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+      }"
+    />
+  </div>
   <v-row>
     <v-col cols="12" sm="6">
       <v-date-input label="Начиная с даты" v-model="dateFrom"></v-date-input>
@@ -92,6 +101,7 @@ import { useRouteQuery } from "@vueuse/router";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { salesListRequestUrl, type SalesListResponse } from "@/api/sale/list";
 import useDateRangeQuery from "@/composables/useDateRangeQuery";
+import { Bar } from "vue-chartjs";
 
 const { dateFrom, dateTo } = useDateRangeQuery();
 
@@ -157,5 +167,26 @@ const filteredData = computed(() => {
       totalPriceRange.value[0] <= Number.parseFloat(item.total_price) &&
       Number.parseFloat(item.total_price) <= totalPriceRange.value[1]
   );
+});
+
+const chartData = computed(() => {
+  const regions = [
+    ...new Set(filteredData.value.map((item) => item.region_name)),
+  ];
+  const data = [];
+  for (const region of regions) {
+    const regionSum = filteredData.value.reduce(
+      (sum, item) =>
+        (item.region_name == region ? Number.parseFloat(item.total_price) : 0) +
+        sum,
+      0
+    );
+    data.push(regionSum);
+  }
+
+  return {
+    labels: regions,
+    datasets: [{ data, label: "Полная сумма по региону" }],
+  };
 });
 </script>

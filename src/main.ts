@@ -7,6 +7,16 @@
 // Plugins
 import { registerPlugins } from '@/plugins'
 
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js'
+
 // Components
 import App from './App.vue'
 
@@ -21,3 +31,5 @@ const app = createApp(App)
 registerPlugins(app)
 
 app.mount('#app')
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
