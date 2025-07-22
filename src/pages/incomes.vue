@@ -18,7 +18,9 @@
     </v-col>
   </v-row>
   <v-row>
-    <v-col cols="12" md="1" class="d-flex align-center">Фильтр по количеству:</v-col>
+    <v-col cols="12" md="1" class="d-flex align-center"
+      >Фильтр по количеству:</v-col
+    >
     <v-col>
       <v-range-slider
         v-model="quantityRange"
@@ -140,6 +142,8 @@ const quantityRange = ref([quantityMin.value, quantityMax.value]);
 
 watch(response, (newResponse) => {
   if (newResponse != null) {
+    const quantityFilterWasMaxed = quantityRange.value[1] == quantityMax.value;
+
     quantityMin.value = 0;
     quantityMax.value = Math.max(
       Math.ceil(
@@ -148,8 +152,9 @@ watch(response, (newResponse) => {
       quantityMax.value
     );
 
-    if (quantityRange.value[1] == 0) {
-      quantityRange.value = [quantityMin.value, quantityMax.value];
+    // Update filter to the new maximum value, if it wasn't changed by the user.
+    if (quantityRange.value[1] == 0 || quantityFilterWasMaxed) {
+      quantityRange.value[1] = quantityMax.value;
     }
   }
 });

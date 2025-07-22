@@ -140,6 +140,9 @@ const totalPriceRange = ref([totalPriceMin.value, totalPriceMax.value]);
 
 watch(response, (newResponse) => {
   if (newResponse != null) {
+    const totalPriceFilterWasMaxed =
+      totalPriceRange.value[1] == totalPriceMax.value;
+
     totalPriceMin.value = 0;
     totalPriceMax.value = Math.max(
       Math.ceil(
@@ -152,8 +155,9 @@ watch(response, (newResponse) => {
       totalPriceMax.value
     );
 
-    if (totalPriceRange.value[1] == 0) {
-      totalPriceRange.value = [totalPriceMin.value, totalPriceMax.value];
+    // Update filter to the new maximum value, if it wasn't changed by the user.
+    if (totalPriceRange.value[1] == 0 || totalPriceFilterWasMaxed) {
+      totalPriceRange.value[1] = totalPriceMax.value;
     }
   }
 });
