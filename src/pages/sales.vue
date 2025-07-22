@@ -1,6 +1,18 @@
 <template>
-  <h1>Продажи</h1>
-  <template v-if="response != null">
+  <h1 class="mb-8">Продажи</h1>
+  <v-row>
+    <v-col cols="12" sm="6">
+      <v-date-input label="Начиная с даты" v-model="dateFrom"></v-date-input>
+    </v-col>
+    <v-col cols="12" sm="6">
+      <v-date-input label="Заканчивая датой" v-model="dateTo"></v-date-input>
+    </v-col>
+  </v-row>
+  <v-sheet v-if="error != null" class="d-flex flex-column ga-4 align-center">
+    <p>Ошибка при загрузке данных</p>
+    <v-btn @click="execute">Попробовать ещё раз</v-btn>
+  </v-sheet>
+  <template v-if="response != null && error == null">
     <v-table fixed-header striped="even">
       <thead>
         <tr>
@@ -30,6 +42,7 @@
       <v-pagination
         v-model="page"
         :length="response.meta.last_page"
+        :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
         :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
     </div>
@@ -40,21 +53,38 @@
 import { computed } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
+import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { salesListRequestUrl, type SalesListResponse } from "@/api/sale/list";
+import useDateRangeQuery from "@/composables/useDateRangeQuery";
+
+const { dateFrom, dateTo } = useDateRangeQuery();
 
 const page = useRouteQuery("page", "1", { transform: Number });
-const url = computed(
-  () =>
-    salesListRequestUrl({
-      // Last 10 days
-      dateFrom: new Date(Date.now() - (24 * 60 * 60 * 1000) * 10),
-      dateTo: new Date(),
-      page: page.value,
-      limit: 100,
-    }).href
-);
+watch(dateFrom, () => {
+  page.value = 1;
+});
+watch(dateTo, () => {
+  page.value = 1;
+});
 
-const { data: response } = useFetch(url, { refetch: true })
-  .get()
-  .json<SalesListResponse>();
+const url = computed(() => {
+  return salesListRequestUrl({
+    dateFrom: dateFrom.value ?? new Date(),
+    dateTo: dateTo.value ?? new Date(),
+    page: page.value,
+    limit: 100,
+  }).href;
+});
+
+const {
+  execute,
+  isFetching,
+  error,
+  data: response,
+} = useFetch(url, { refetch: true }).get().json<SalesListResponse>();
+
+const { isLoading } = useNProgress();
+watch(isFetching, (value) => {
+  isLoading.value = value;
+});
 </script>

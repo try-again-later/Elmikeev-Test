@@ -1,5 +1,5 @@
 <template>
-  <h1>Склады</h1>
+  <h1 class="mb-8">Склады</h1>
   <template v-if="response != null">
     <v-table fixed-header striped="even">
       <thead>
@@ -8,8 +8,8 @@
           <th>Дата</th>
           <th>Склад</th>
           <th>Стоимость</th>
-          <th>На пути к клиенту</th>
-          <th>На пути от клиента</th>
+          <th>В пути к клиенту</th>
+          <th>В пути от клиента</th>
         </tr>
       </thead>
       <tbody>
@@ -18,8 +18,8 @@
           <td>{{ item.date }}</td>
           <td>{{ item.warehouse_name }}</td>
           <td>{{ item.price ?? 0 }}</td>
-          <td>{{ item.in_way_to_client ? 'Да' : 'Нет' }}</td>
-          <td>{{ item.in_way_from_client ? 'Да' : 'Нет' }}</td>
+          <td>{{ item.in_way_to_client ? "Да" : "Нет" }}</td>
+          <td>{{ item.in_way_from_client ? "Да" : "Нет" }}</td>
         </tr>
       </tbody>
     </v-table>
@@ -28,6 +28,7 @@
       <v-pagination
         v-model="page"
         :length="response.meta.last_page"
+        :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
         :total-visible="$vuetify.display.smAndDown ? 2 : 5"
       ></v-pagination>
     </div>
@@ -42,12 +43,13 @@ import {
   stocksListRequestUrl,
   type StocksListResponse,
 } from "@/api/stock/list";
+import { startOfToday } from "date-fns";
 
 const page = useRouteQuery("page", "1", { transform: Number });
 const url = computed(
   () =>
     stocksListRequestUrl({
-      dateFrom: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      dateFrom: startOfToday(),
       dateTo: new Date(),
       page: page.value,
       limit: 100,

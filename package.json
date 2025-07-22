@@ -15,7 +15,10 @@
     "@fontsource/roboto": "5.2.6",
     "@mdi/font": "7.4.47",
     "@vueuse/core": "^13.5.0",
+    "@vueuse/integrations": "^13.5.0",
     "@vueuse/router": "^13.5.0",
+    "date-fns": "^4.1.0",
+    "nprogress": "^0.2.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",
     "vuetify": "^3.9.1"
