@@ -70,6 +70,7 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
+          <th>Артикул</th>
           <th>Штрих-код</th>
           <th>Дата</th>
           <th>Склад</th>
@@ -80,6 +81,7 @@
       </thead>
       <tbody>
         <tr v-for="item in filteredData">
+          <td>{{ item.nm_id }}</td>
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
           <td>{{ item.warehouse_name }}</td>

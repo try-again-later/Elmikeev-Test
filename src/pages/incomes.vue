@@ -63,6 +63,7 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
+          <th>Артикул</th>
           <th>Штрих-код</th>
           <th>Дата</th>
           <th>Дата закрытия</th>
@@ -72,6 +73,7 @@
       </thead>
       <tbody>
         <tr v-for="item in filteredData">
+          <td>{{ item.nm_id }}</td>
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
           <td>{{ item.date_close }}</td>
@@ -103,8 +105,14 @@ import {
 import useDateRangeQuery from "@/composables/useDateRangeQuery";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { Bar } from "vue-chartjs";
+import { subMonths } from "date-fns";
+import { useIncomeFiltersStore } from "@/stores/incomeFilters";
+import { storeToRefs } from "pinia";
 
-const { dateFrom, dateTo } = useDateRangeQuery();
+const filtersStore = useIncomeFiltersStore();
+const { dateFrom, dateTo } = storeToRefs(filtersStore);
+
+useDateRangeQuery(dateFrom, dateTo);
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
@@ -114,11 +122,14 @@ watch(dateTo, () => {
   page.value = 1;
 });
 
+const defaultDateFrom = subMonths(new Date(), 1);
+const defaultDateTo = new Date();
+
 const url = computed(
   () =>
     incomesListRequestUrl({
-      dateFrom: dateFrom.value ?? new Date(),
-      dateTo: dateTo.value ?? new Date(),
+      dateFrom: dateFrom.value ?? defaultDateFrom,
+      dateTo: dateTo.value ?? defaultDateTo,
       page: page.value,
       limit: 100,
     }).href

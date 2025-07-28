@@ -61,6 +61,7 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
+          <th>Артикул</th>
           <th>ID</th>
           <th>Штрих-код</th>
           <th>Дата</th>
@@ -72,6 +73,7 @@
       </thead>
       <tbody>
         <tr v-for="item in filteredData">
+          <td>{{ item.nm_id }}</td>
           <td>{{ item.sale_id }}</td>
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
@@ -102,8 +104,14 @@ import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { salesListRequestUrl, type SalesListResponse } from "@/api/sale/list";
 import useDateRangeQuery from "@/composables/useDateRangeQuery";
 import { Bar } from "vue-chartjs";
+import { subMonths } from "date-fns";
+import { useSaleFiltersStore } from "@/stores/saleFilters";
+import { storeToRefs } from 'pinia';
 
-const { dateFrom, dateTo } = useDateRangeQuery();
+const filtersStore = useSaleFiltersStore();
+const { dateFrom, dateTo } = storeToRefs(filtersStore);
+
+useDateRangeQuery(dateFrom, dateTo);
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
@@ -113,10 +121,13 @@ watch(dateTo, () => {
   page.value = 1;
 });
 
+const defaultDateFrom = subMonths(new Date(), 1);
+const defaultDateTo = new Date();
+
 const url = computed(() => {
   return salesListRequestUrl({
-    dateFrom: dateFrom.value ?? new Date(),
-    dateTo: dateTo.value ?? new Date(),
+    dateFrom: dateFrom.value ?? defaultDateFrom,
+    dateTo: dateTo.value ?? defaultDateTo,
     page: page.value,
     limit: 100,
   }).href;
