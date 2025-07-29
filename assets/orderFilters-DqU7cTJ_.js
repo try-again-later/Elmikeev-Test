@@ -1,0 +1,1 @@
+import{au as c,A as e}from"./index-Biun5NIw.js";const i=c("orderFilters",()=>{const r=e(null),t=e(null),o=e(null),s=e(null),n=e([]),l=e([]),a=e([]);return{dateFrom:r,dateTo:t,page:o,warehouseNamesFilter:s,partNamesFilter:n,brandFilter:l,categoryFilter:a}});export{i as u};

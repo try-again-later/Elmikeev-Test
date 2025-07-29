@@ -1,1 +1,0 @@
-import{ag as a,A as t}from"./index-CF-3AlnE.js";const c=a("incomeFilters",()=>{const e=t(null),n=t(null),o=t(null),r=t(null),s=t([]);return{dateFrom:e,dateTo:n,page:o,quantityRange:r,partNamesFilter:s}});export{c as u};
