@@ -113,8 +113,12 @@ import {
 } from "@/api/stock/list";
 import { startOfToday } from "date-fns";
 import { Pie } from "vue-chartjs";
+import { useStockFiltersStore } from "@/stores/stockFilters";
+
+const filtersStore = useStockFiltersStore();
 
 const page = useRouteQuery("page", "1", { transform: Number });
+
 const url = computed(
   () =>
     stocksListRequestUrl({
@@ -131,8 +135,37 @@ const { error, data: response } = useFetch(url, { refetch: true })
 
 type BooleanFilter = "Да" | "Нет" | "Не важно";
 
-const inWayToClient = ref<BooleanFilter>("Не важно");
-const inWayFromClient = ref<BooleanFilter>("Не важно");
+const inWayToClientQuery = useRouteQuery<BooleanFilter>(
+  "in-way-to-client",
+  "Не важно"
+);
+const inWayToClient = computed<BooleanFilter>({
+  get() {
+    return inWayToClientQuery.value;
+  },
+  set(value) {
+    inWayToClientQuery.value = value;
+  },
+});
+
+const inWayFromClientQuery = useRouteQuery<BooleanFilter>(
+  "in-way-from-client",
+  "Не важно"
+);
+const inWayFromClient = computed<BooleanFilter>({
+  get() {
+    return inWayFromClientQuery.value;
+  },
+  set(value) {
+    inWayFromClientQuery.value = value;
+  },
+});
+
+watchEffect(() => {
+  filtersStore.page = page.value;
+  filtersStore.inWayFromClient = inWayFromClient.value;
+  filtersStore.inWayToClient = inWayToClient.value;
+});
 
 const filteredData = computed(() => {
   if (response.value == null) {

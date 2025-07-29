@@ -110,12 +110,6 @@ import { useSaleFiltersStore } from "@/stores/saleFilters";
 const filtersStore = useSaleFiltersStore();
 
 const { dateFrom, dateTo } = useDateRangeQuery();
-watch(dateFrom, () => {
-  filtersStore.dateFrom = dateFrom.value;
-});
-watch(dateTo, () => {
-  filtersStore.dateTo = dateTo.value;
-});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
@@ -151,7 +145,29 @@ watch(isFetching, (value) => {
 
 const totalPriceMin = ref(0);
 const totalPriceMax = ref(0);
-const totalPriceRange = ref([totalPriceMin.value, totalPriceMax.value]);
+
+const totalPriceRangeQuery = useRouteQuery(
+  "price-range",
+  `${totalPriceMin.value},${totalPriceMax.value}`
+);
+const totalPriceRange = computed<[number, number]>({
+  get() {
+    return totalPriceRangeQuery.value
+      .split(",")
+      .map((rawValue) => Number.parseFloat(rawValue) || 0)
+      .slice(0, 2) as [number, number];
+  },
+  set(newRange) {
+    totalPriceRangeQuery.value = `${newRange[0]},${newRange[1]}`;
+  },
+});
+
+watchEffect(() => {
+  filtersStore.dateFrom = dateFrom.value;
+  filtersStore.dateTo = dateTo.value;
+  filtersStore.page = page.value;
+  filtersStore.totalPriceRange = totalPriceRange.value;
+});
 
 watch(response, (newResponse) => {
   if (newResponse != null) {

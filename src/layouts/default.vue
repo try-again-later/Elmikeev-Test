@@ -66,7 +66,9 @@ const navItems = [
     route: "sales",
     icon: "mdi-cash-plus",
     get query() {
-      const { dateFrom, dateTo } = storeToRefs(useSaleFiltersStore());
+      const { dateFrom, dateTo, page, totalPriceRange } = storeToRefs(
+        useSaleFiltersStore()
+      );
 
       const query: Record<string, string> = {};
       if (dateFrom.value != null) {
@@ -74,6 +76,14 @@ const navItems = [
       }
       if (dateTo.value != null) {
         query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+      if (page.value != null || page.value == 1) {
+        query.page = page.value.toString();
+      }
+      if (totalPriceRange.value != null) {
+        query[
+          "price-range"
+        ] = `${totalPriceRange.value[0]},${totalPriceRange.value[1]}`;
       }
 
       return query;
@@ -84,7 +94,9 @@ const navItems = [
     route: "orders",
     icon: "mdi-cart",
     get query() {
-      const { dateFrom, dateTo } = storeToRefs(useOrderFiltersStore());
+      const { dateFrom, dateTo, page, warehouseNamesFilter } = storeToRefs(
+        useOrderFiltersStore()
+      );
 
       const query: Record<string, string> = {};
       if (dateFrom.value != null) {
@@ -92,6 +104,12 @@ const navItems = [
       }
       if (dateTo.value != null) {
         query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+      if (page.value != null || page.value == 1) {
+        query.page = page.value.toString();
+      }
+      if (warehouseNamesFilter.value != null) {
+        query.warehouses = warehouseNamesFilter.value.join(",");
       }
 
       return query;
@@ -102,7 +120,18 @@ const navItems = [
     route: "stocks",
     icon: "mdi-warehouse",
     get query() {
-      return {};
+      const { page, inWayFromClient, inWayToClient } = storeToRefs(
+        useStockFiltersStore()
+      );
+
+      const query: Record<string, string> = {};
+      if (page.value != null || page.value == 1) {
+        query.page = page.value.toString();
+      }
+      query["in-way-from-client"] = inWayFromClient.value;
+      query["in-way-to-client"] = inWayToClient.value;
+
+      return query;
     },
   },
   {
@@ -110,7 +139,9 @@ const navItems = [
     route: "incomes",
     icon: "mdi-hand-coin",
     get query() {
-      const { dateFrom, dateTo } = storeToRefs(useIncomeFiltersStore());
+      const { dateFrom, dateTo, page, quantityRange } = storeToRefs(
+        useIncomeFiltersStore()
+      );
 
       const query: Record<string, string> = {};
       if (dateFrom.value != null) {
@@ -118,6 +149,14 @@ const navItems = [
       }
       if (dateTo.value != null) {
         query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+      if (page.value != null || page.value == 1) {
+        query.page = page.value.toString();
+      }
+      if (quantityRange.value != null) {
+        query[
+          "quantity-range"
+        ] = `${quantityRange.value[0]},${quantityRange.value[1]}`;
       }
 
       return query;

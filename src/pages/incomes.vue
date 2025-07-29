@@ -111,12 +111,6 @@ import { useIncomeFiltersStore } from "@/stores/incomeFilters";
 const filtersStore = useIncomeFiltersStore();
 
 const { dateFrom, dateTo } = useDateRangeQuery();
-watch(dateFrom, () => {
-  filtersStore.dateFrom = dateFrom.value;
-});
-watch(dateTo, () => {
-  filtersStore.dateTo = dateTo.value;
-});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
@@ -153,7 +147,22 @@ watch(isFetching, (value) => {
 
 const quantityMin = ref(0);
 const quantityMax = ref(0);
-const quantityRange = ref([quantityMin.value, quantityMax.value]);
+
+const quantityRangeQuery = useRouteQuery(
+  "quantity-range",
+  `${quantityMin.value},${quantityMax.value}`
+);
+const quantityRange = computed<[number, number]>({
+  get() {
+    return quantityRangeQuery.value
+      .split(",")
+      .map((rawValue) => Number.parseFloat(rawValue) || 0)
+      .slice(0, 2) as [number, number];
+  },
+  set(newRange) {
+    quantityRangeQuery.value = `${newRange[0]},${newRange[1]}`;
+  },
+});
 
 watch(response, (newResponse) => {
   if (newResponse != null) {
@@ -172,6 +181,13 @@ watch(response, (newResponse) => {
       quantityRange.value[1] = quantityMax.value;
     }
   }
+});
+
+watchEffect(() => {
+  filtersStore.dateFrom = dateFrom.value;
+  filtersStore.dateTo = dateTo.value;
+  filtersStore.page = page.value;
+  filtersStore.quantityRange = quantityRange.value;
 });
 
 const filteredData = computed(() => {

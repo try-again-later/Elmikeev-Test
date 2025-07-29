@@ -91,12 +91,6 @@ import { useOrderFiltersStore } from "@/stores/orderFilters";
 const filtersStore = useOrderFiltersStore();
 
 const { dateFrom, dateTo } = useDateRangeQuery();
-watch(dateFrom, () => {
-  filtersStore.dateFrom = dateFrom.value;
-});
-watch(dateTo, () => {
-  filtersStore.dateTo = dateTo.value;
-});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
@@ -132,7 +126,20 @@ watch(isFetching, (value) => {
 });
 
 const warehouseNames = ref<string[]>([]);
-const warehouseNamesFilter = ref<string[]>([]);
+
+const warehouseNamesFilterQuery = useRouteQuery<string>("warehouses");
+const warehouseNamesFilter = computed<string[]>({
+  get() {
+    if (warehouseNamesFilterQuery.value == null) {
+      return [];
+    } else {
+      return warehouseNamesFilterQuery.value.split(",");
+    }
+  },
+  set(value) {
+    warehouseNamesFilterQuery.value = value.join(",");
+  },
+});
 
 watch(response, (newResponse) => {
   if (newResponse != null) {
@@ -149,6 +156,13 @@ watch(response, (newResponse) => {
       warehouseNamesFilter.value = warehouseNames.value;
     }
   }
+});
+
+watchEffect(() => {
+  filtersStore.dateFrom = dateFrom.value;
+  filtersStore.dateTo = dateTo.value;
+  filtersStore.page = page.value;
+  filtersStore.warehouseNamesFilter = warehouseNamesFilter.value;
 });
 
 const filteredData = computed(() => {
