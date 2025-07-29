@@ -67,7 +67,8 @@
             <v-select
               v-model="partNamesFilter"
               :items="partNames"
-              max-width="250"
+              min-width="200"
+              max-width="400"
               label="Артикул"
               multiple
             ></v-select>
@@ -174,13 +175,15 @@ const quantityRange = computed<[number, number]>({
 });
 
 const partNames = ref<number[]>([]);
-const partNamesFilter = ref<number[]>([]);
+const partNamesFilter = ref<number[]>(filtersStore.partNamesFilter);
 
 watchEffect(() => {
   filtersStore.dateFrom = dateFrom.value;
   filtersStore.dateTo = dateTo.value;
   filtersStore.page = page.value;
   filtersStore.quantityRange = quantityRange.value;
+
+  filtersStore.partNamesFilter = partNamesFilter.value;
 });
 
 watch(response, (newResponse) => {
@@ -201,9 +204,11 @@ watch(response, (newResponse) => {
     }
 
     partNames.value = [
-      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+      ...new Set([
+        ...newResponse.data.map((item) => item.nm_id),
+        ...partNamesFilter.value,
+      ]),
     ];
-    partNamesFilter.value = [];
   }
 });
 
@@ -216,8 +221,7 @@ const filteredData = computed(() => {
       quantityRange.value[0] <= item.quantity &&
       item.quantity <= quantityRange.value[1] &&
       (partNamesFilter.value.length == 0 ||
-        (partNamesFilter.value.length > 0 &&
-          partNamesFilter.value.includes(item.nm_id)))
+        partNamesFilter.value.includes(item.nm_id))
   );
 });
 

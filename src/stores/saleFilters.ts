@@ -6,5 +6,19 @@ export const useSaleFiltersStore = defineStore("saleFilters", () => {
   const page = ref<number | null>(null);
   const totalPriceRange = ref<[number, number] | null>(null);
 
-  return { dateFrom, dateTo, page, totalPriceRange };
+  const partNamesFilter = ref<number[]>([]);
+  const regionFilter = ref<string[]>([]);
+  const brandFilter = ref<string[]>([]);
+  const categoryFilter = ref<string[]>([]);
+
+  return {
+    dateFrom,
+    dateTo,
+    page,
+    totalPriceRange,
+    partNamesFilter,
+    regionFilter,
+    brandFilter,
+    categoryFilter,
+  };
 });

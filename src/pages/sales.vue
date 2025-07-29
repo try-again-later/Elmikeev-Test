@@ -65,7 +65,8 @@
             <v-select
               v-model="partNamesFilter"
               :items="partNames"
-              max-width="250"
+              min-width="200"
+              max-width="400"
               label="Артикул"
               multiple
             ></v-select>
@@ -73,9 +74,38 @@
           <th>ID</th>
           <th>Штрих-код</th>
           <th>Дата</th>
+          <th>
+            <v-select
+              v-model="brandFilter"
+              :items="brands"
+              min-width="200"
+              max-width="400"
+              label="Брэнд"
+              multiple
+            ></v-select>
+          </th>
+          <th>
+            <v-select
+              v-model="categoryFilter"
+              :items="categories"
+              min-width="200"
+              max-width="400"
+              label="Категория"
+              multiple
+            ></v-select>
+          </th>
           <th>Полная сумма</th>
           <th>Скидка</th>
-          <th>Регион</th>
+          <th>
+            <v-select
+              v-model="regionFilter"
+              :items="regions"
+              min-width="200"
+              max-width="400"
+              label="Регион"
+              multiple
+            ></v-select>
+          </th>
           <th>Склад</th>
         </tr>
       </thead>
@@ -85,6 +115,8 @@
           <td>{{ item.sale_id }}</td>
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
+          <td>{{ item.brand }}</td>
+          <td>{{ item.category }}</td>
           <td>{{ parseFloat(item.total_price).toFixed(2) }}</td>
           <td>{{ `${item.discount_percent}%` }}</td>
           <td>{{ item.region_name }}</td>
@@ -172,13 +204,27 @@ const totalPriceRange = computed<[number, number]>({
 });
 
 const partNames = ref<number[]>([]);
-const partNamesFilter = ref<number[]>([]);
+const partNamesFilter = ref<number[]>(filtersStore.partNamesFilter);
+
+const regions = ref<string[]>([]);
+const regionFilter = ref<string[]>(filtersStore.regionFilter);
+
+const brands = ref<string[]>([]);
+const brandFilter = ref<string[]>(filtersStore.brandFilter);
+
+const categories = ref<string[]>([]);
+const categoryFilter = ref<string[]>(filtersStore.categoryFilter);
 
 watchEffect(() => {
   filtersStore.dateFrom = dateFrom.value;
   filtersStore.dateTo = dateTo.value;
   filtersStore.page = page.value;
   filtersStore.totalPriceRange = totalPriceRange.value;
+
+  filtersStore.partNamesFilter = partNamesFilter.value;
+  filtersStore.regionFilter = regionFilter.value;
+  filtersStore.brandFilter = brandFilter.value;
+  filtersStore.categoryFilter = categoryFilter.value;
 });
 
 watch(response, (newResponse) => {
@@ -204,9 +250,32 @@ watch(response, (newResponse) => {
     }
 
     partNames.value = [
-      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+      ...new Set([
+        ...newResponse.data.map((item) => item.nm_id),
+        ...partNamesFilter.value,
+      ]),
     ];
-    partNamesFilter.value = [];
+
+    regions.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.region_name),
+        ...regionFilter.value,
+      ]),
+    ];
+
+    brands.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.brand),
+        ...brandFilter.value,
+      ]),
+    ];
+
+    categories.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.category),
+        ...categoryFilter.value,
+      ]),
+    ];
   }
 });
 
@@ -219,8 +288,13 @@ const filteredData = computed(() => {
       totalPriceRange.value[0] <= Number.parseFloat(item.total_price) &&
       Number.parseFloat(item.total_price) <= totalPriceRange.value[1] &&
       (partNamesFilter.value.length == 0 ||
-        (partNamesFilter.value.length > 0 &&
-          partNamesFilter.value.includes(item.nm_id)))
+        partNamesFilter.value.includes(item.nm_id)) &&
+      (regionFilter.value.length == 0 ||
+        regionFilter.value.includes(item.region_name)) &&
+      (brandFilter.value.length == 0 ||
+        brandFilter.value.includes(item.brand)) &&
+      (categoryFilter.value.length == 0 ||
+        categoryFilter.value.includes(item.category))
   );
 });
 

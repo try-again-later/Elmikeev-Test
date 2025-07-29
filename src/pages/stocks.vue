@@ -74,13 +74,34 @@
             <v-select
               v-model="partNamesFilter"
               :items="partNames"
-              max-width="250"
+              min-width="200"
+              max-width="400"
               label="Артикул"
               multiple
             ></v-select>
           </th>
           <th>Штрих-код</th>
           <th>Дата</th>
+          <th>
+            <v-select
+              v-model="brandFilter"
+              :items="brands"
+              min-width="200"
+              max-width="400"
+              label="Брэнд"
+              multiple
+            ></v-select>
+          </th>
+          <th>
+            <v-select
+              v-model="categoryFilter"
+              :items="categories"
+              min-width="200"
+              max-width="400"
+              label="Категория"
+              multiple
+            ></v-select>
+          </th>
           <th>Склад</th>
           <th>Стоимость</th>
           <th>В пути к клиенту</th>
@@ -92,6 +113,8 @@
           <td>{{ item.nm_id }}</td>
           <td>{{ item.barcode }}</td>
           <td>{{ item.date }}</td>
+          <td>{{ item.brand }}</td>
+          <td>{{ item.category }}</td>
           <td>{{ item.warehouse_name }}</td>
           <td>{{ item.price ?? 0 }}</td>
           <td>{{ item.in_way_to_client ? "Да" : "Нет" }}</td>
@@ -170,20 +193,46 @@ const inWayFromClient = computed<BooleanFilter>({
 });
 
 const partNames = ref<number[]>([]);
-const partNamesFilter = ref<number[]>([]);
+const partNamesFilter = ref<number[]>(filtersStore.partNamesFilter);
+
+const brands = ref<string[]>([]);
+const brandFilter = ref<string[]>(filtersStore.brandFilter);
+
+const categories = ref<string[]>([]);
+const categoryFilter = ref<string[]>(filtersStore.categoryFilter);
 
 watchEffect(() => {
   filtersStore.page = page.value;
   filtersStore.inWayFromClient = inWayFromClient.value;
   filtersStore.inWayToClient = inWayToClient.value;
+
+  filtersStore.partNamesFilter = partNamesFilter.value;
+  filtersStore.brandFilter = brandFilter.value;
+  filtersStore.categoryFilter = categoryFilter.value;
 });
 
 watch(response, (newResponse) => {
   if (newResponse != null) {
     partNames.value = [
-      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+      ...new Set([
+        ...newResponse.data.map((item) => item.nm_id),
+        ...partNamesFilter.value,
+      ]),
     ];
-    partNamesFilter.value = [];
+
+    brands.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.brand),
+        ...brandFilter.value,
+      ]),
+    ];
+
+    categories.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.category),
+        ...categoryFilter.value,
+      ]),
+    ];
   }
 });
 
@@ -206,9 +255,12 @@ const filteredData = computed(() => {
     }
 
     isIncluded &&=
-      partNamesFilter.value.length == 0 ||
-      (partNamesFilter.value.length > 0 &&
-        partNamesFilter.value.includes(item.nm_id));
+      (partNamesFilter.value.length == 0 ||
+        partNamesFilter.value.includes(item.nm_id)) &&
+      (brandFilter.value.length == 0 ||
+        brandFilter.value.includes(item.brand)) &&
+      (categoryFilter.value.length == 0 ||
+        categoryFilter.value.includes(item.category));
 
     return isIncluded;
   });

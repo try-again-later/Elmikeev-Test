@@ -6,5 +6,17 @@ export const useOrderFiltersStore = defineStore("orderFilters", () => {
   const page = ref<number | null>(null);
   const warehouseNamesFilter = ref<string[] | null>(null);
 
-  return { dateFrom, dateTo, page, warehouseNamesFilter };
+  const partNamesFilter = ref<number[]>([]);
+  const brandFilter = ref<string[]>([]);
+  const categoryFilter = ref<string[]>([]);
+
+  return {
+    dateFrom,
+    dateTo,
+    page,
+    warehouseNamesFilter,
+    partNamesFilter,
+    brandFilter,
+    categoryFilter,
+  };
 });

@@ -6,5 +6,7 @@ export const useIncomeFiltersStore = defineStore("incomeFilters", () => {
   const page = ref<number | null>(null);
   const quantityRange = ref<[number, number] | null>(null);
 
-  return { dateFrom, dateTo, page, quantityRange };
+  const partNamesFilter = ref<number[]>([]);
+
+  return { dateFrom, dateTo, page, quantityRange, partNamesFilter };
 });
