@@ -1,22 +1,42 @@
 import { useRouteQuery } from "@vueuse/router";
 import { parse as dateParse, format as dateFormat } from "date-fns";
-import { type Ref } from "vue";
 
-export default function useDateRangeQuery(
-  dateFrom: Ref<Date | null>,
-  dateTo: Ref<Date | null>
-) {
+export default function useDateRangeQuery() {
   const DATE_FORMAT = "yyyy-MM-dd";
 
   const dateFromQuery = useRouteQuery<string | null>("dateFrom");
-  if (dateFrom.value == null && dateFromQuery.value != null) {
-    dateFrom.value = dateParse(dateFromQuery.value, DATE_FORMAT, new Date());
-  }
+  const dateFrom = computed<Date | null>({
+    get() {
+      if (dateFromQuery.value == null) {
+        return null;
+      }
+      return dateParse(dateFromQuery.value, DATE_FORMAT, new Date());
+    },
+    set(newDateFrom: Date | null) {
+      if (newDateFrom == null) {
+        dateFromQuery.value = null;
+      } else {
+        dateFromQuery.value = dateFormat(newDateFrom, DATE_FORMAT);
+      }
+    },
+  });
 
   const dateToQuery = useRouteQuery<string | null>("dateTo");
-  if (dateTo.value == null && dateToQuery.value != null) {
-    dateTo.value = dateParse(dateToQuery.value, DATE_FORMAT, new Date());
-  }
+  const dateTo = computed<Date | null>({
+    get() {
+      if (dateToQuery.value == null) {
+        return null;
+      }
+      return dateParse(dateToQuery.value, DATE_FORMAT, new Date());
+    },
+    set(newDateTo: Date | null) {
+      if (newDateTo == null) {
+        dateToQuery.value = null;
+      } else {
+        dateToQuery.value = dateFormat(newDateTo, DATE_FORMAT);
+      }
+    },
+  });
 
   watch(dateFrom, (newDateFrom) => {
     if (
@@ -27,14 +47,6 @@ export default function useDateRangeQuery(
       dateTo.value = newDateFrom;
     }
   });
-  watchEffect(() => {
-    if (dateFrom.value == null) {
-      dateFromQuery.value = null;
-    } else {
-      dateFromQuery.value = dateFormat(dateFrom.value, DATE_FORMAT);
-    }
-  });
-
   watch(dateTo, (newDateTo) => {
     if (
       newDateTo != null &&
@@ -44,11 +56,6 @@ export default function useDateRangeQuery(
       dateFrom.value = newDateTo;
     }
   });
-  watchEffect(() => {
-    if (dateTo.value == null) {
-      dateToQuery.value = null;
-    } else {
-      dateToQuery.value = dateFormat(dateTo.value, DATE_FORMAT);
-    }
-  });
+
+  return { dateFrom, dateTo };
 }

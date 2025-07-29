@@ -107,12 +107,16 @@ import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { Bar } from "vue-chartjs";
 import { subMonths } from "date-fns";
 import { useIncomeFiltersStore } from "@/stores/incomeFilters";
-import { storeToRefs } from "pinia";
 
 const filtersStore = useIncomeFiltersStore();
-const { dateFrom, dateTo } = storeToRefs(filtersStore);
 
-useDateRangeQuery(dateFrom, dateTo);
+const { dateFrom, dateTo } = useDateRangeQuery();
+watch(dateFrom, () => {
+  filtersStore.dateFrom = dateFrom.value;
+});
+watch(dateTo, () => {
+  filtersStore.dateTo = dateTo.value;
+});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {

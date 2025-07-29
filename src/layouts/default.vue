@@ -6,7 +6,7 @@
         :key="item.route"
         :title="item.title"
         :prepend-icon="item.icon"
-        :to="item.route"
+        :to="{ path: item.route, query: item.query, replace: true }"
       />
     </v-list>
   </v-navigation-drawer>
@@ -25,7 +25,7 @@
             :key="item.route"
             :text="item.title"
             :prepend-icon="item.icon"
-            :to="item.route"
+            :to="{ path: item.route, query: item.query, replace: true }"
           />
         </template>
 
@@ -47,30 +47,81 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { format as dateFormat } from "date-fns";
+
+import { useSaleFiltersStore } from "@/stores/saleFilters";
+import { useOrderFiltersStore } from "@/stores/orderFilters";
+import { useStockFiltersStore } from "@/stores/stockFilters";
+import { useIncomeFiltersStore } from "@/stores/incomeFilters";
+
+const DATE_FORMAT = "yyyy-MM-dd";
 
 const drawerVisible = ref(false);
 
 const navItems = [
   {
-    title: 'Продажи',
-    route: 'sales',
-    icon: 'mdi-cash-plus',
+    title: "Продажи",
+    route: "sales",
+    icon: "mdi-cash-plus",
+    get query() {
+      const { dateFrom, dateTo } = storeToRefs(useSaleFiltersStore());
+
+      const query: Record<string, string> = {};
+      if (dateFrom.value != null) {
+        query.dateFrom = dateFormat(dateFrom.value, DATE_FORMAT);
+      }
+      if (dateTo.value != null) {
+        query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+
+      return query;
+    },
   },
   {
-    title: 'Заказы',
-    route: 'orders',
-    icon: 'mdi-cart',
+    title: "Заказы",
+    route: "orders",
+    icon: "mdi-cart",
+    get query() {
+      const { dateFrom, dateTo } = storeToRefs(useOrderFiltersStore());
+
+      const query: Record<string, string> = {};
+      if (dateFrom.value != null) {
+        query.dateFrom = dateFormat(dateFrom.value, DATE_FORMAT);
+      }
+      if (dateTo.value != null) {
+        query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+
+      return query;
+    },
   },
   {
-    title: 'Склады',
-    route: 'stocks',
-    icon: 'mdi-warehouse',
+    title: "Склады",
+    route: "stocks",
+    icon: "mdi-warehouse",
+    get query() {
+      return {};
+    },
   },
   {
-    title: 'Доходы',
-    route: 'incomes',
-    icon: 'mdi-hand-coin',
+    title: "Доходы",
+    route: "incomes",
+    icon: "mdi-hand-coin",
+    get query() {
+      const { dateFrom, dateTo } = storeToRefs(useIncomeFiltersStore());
+
+      const query: Record<string, string> = {};
+      if (dateFrom.value != null) {
+        query.dateFrom = dateFormat(dateFrom.value, DATE_FORMAT);
+      }
+      if (dateTo.value != null) {
+        query.dateTo = dateFormat(dateTo.value, DATE_FORMAT);
+      }
+
+      return query;
+    },
   },
 ];
 </script>

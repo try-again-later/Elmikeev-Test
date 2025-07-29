@@ -89,11 +89,14 @@ import { subMonths } from "date-fns";
 import { useOrderFiltersStore } from "@/stores/orderFilters";
 
 const filtersStore = useOrderFiltersStore();
-const { dateFrom, dateTo } = storeToRefs(filtersStore);
 
-useDateRangeQuery(dateFrom, dateTo);
-
-useDateRangeQuery(dateFrom, dateTo);
+const { dateFrom, dateTo } = useDateRangeQuery();
+watch(dateFrom, () => {
+  filtersStore.dateFrom = dateFrom.value;
+});
+watch(dateTo, () => {
+  filtersStore.dateTo = dateTo.value;
+});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {

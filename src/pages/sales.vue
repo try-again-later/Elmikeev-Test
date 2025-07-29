@@ -106,12 +106,16 @@ import useDateRangeQuery from "@/composables/useDateRangeQuery";
 import { Bar } from "vue-chartjs";
 import { subMonths } from "date-fns";
 import { useSaleFiltersStore } from "@/stores/saleFilters";
-import { storeToRefs } from 'pinia';
 
 const filtersStore = useSaleFiltersStore();
-const { dateFrom, dateTo } = storeToRefs(filtersStore);
 
-useDateRangeQuery(dateFrom, dateTo);
+const { dateFrom, dateTo } = useDateRangeQuery();
+watch(dateFrom, () => {
+  filtersStore.dateFrom = dateFrom.value;
+});
+watch(dateTo, () => {
+  filtersStore.dateTo = dateTo.value;
+});
 
 const page = useRouteQuery("page", "1", { transform: Number });
 watch(dateFrom, () => {
