@@ -11,10 +11,7 @@ import { routes } from 'vue-router/auto-routes'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
-  routes: [
-    { path: '/', redirect: '/sales' },
-    ...setupLayouts(routes),
-  ],
+  routes: setupLayouts(routes),
 })
 
 // Workaround for https://github.com/vitejs/vite/issues/11804

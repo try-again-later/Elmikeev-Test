@@ -62,6 +62,11 @@ const drawerVisible = ref(false);
 
 const navItems = [
   {
+    title: "Главная",
+    route: "/",
+    icon: "mdi-home",
+  },
+  {
     title: "Продажи",
     route: "sales",
     icon: "mdi-cash-plus",
