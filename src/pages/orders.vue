@@ -39,7 +39,15 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
-          <th>Артикул</th>
+          <th>
+            <v-select
+              v-model="partNamesFilter"
+              :items="partNames"
+              max-width="250"
+              label="Артикул"
+              multiple
+            ></v-select>
+          </th>
           <th>Штрих-код</th>
           <th>Дата</th>
           <th>Полная сумма</th>
@@ -127,7 +135,10 @@ watch(isFetching, (value) => {
 
 const warehouseNames = ref<string[]>([]);
 
-const warehouseNamesFilterQuery = useRouteQuery<string | null>("warehouses", null);
+const warehouseNamesFilterQuery = useRouteQuery<string | null>(
+  "warehouses",
+  null
+);
 const warehouseNamesFilter = computed<string[]>({
   get() {
     if (warehouseNamesFilterQuery.value == null) {
@@ -145,6 +156,21 @@ const warehouseNamesFilter = computed<string[]>({
   },
 });
 
+const partNames = ref<number[]>([]);
+const partNamesFilter = ref<number[]>([]);
+
+watchEffect(() => {
+  filtersStore.dateFrom = dateFrom.value;
+  filtersStore.dateTo = dateTo.value;
+  filtersStore.page = page.value;
+
+  if (warehouseNames.value.length != warehouseNamesFilter.value.length) {
+    filtersStore.warehouseNamesFilter = warehouseNamesFilter.value;
+  } else {
+    filtersStore.warehouseNamesFilter = null;
+  }
+});
+
 watch(response, (newResponse) => {
   if (newResponse != null) {
     const selectionWasFull =
@@ -159,18 +185,11 @@ watch(response, (newResponse) => {
     if (warehouseNamesFilter.value.length == 0 || selectionWasFull) {
       warehouseNamesFilter.value = warehouseNames.value;
     }
-  }
-});
 
-watchEffect(() => {
-  filtersStore.dateFrom = dateFrom.value;
-  filtersStore.dateTo = dateTo.value;
-  filtersStore.page = page.value;
-
-  if (warehouseNames.value.length != warehouseNamesFilter.value.length) {
-    filtersStore.warehouseNamesFilter = warehouseNamesFilter.value;
-  } else {
-    filtersStore.warehouseNamesFilter = null;
+    partNames.value = [
+      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+    ];
+    partNamesFilter.value = [];
   }
 });
 
@@ -178,8 +197,12 @@ const filteredData = computed(() => {
   if (response.value == null) {
     return [];
   }
-  return response.value.data.filter((item) =>
-    warehouseNamesFilter.value.includes(item.warehouse_name)
+  return response.value.data.filter(
+    (item) =>
+      warehouseNamesFilter.value.includes(item.warehouse_name) &&
+      (partNamesFilter.value.length == 0 ||
+        (partNamesFilter.value.length > 0 &&
+          partNamesFilter.value.includes(item.nm_id)))
   );
 });
 

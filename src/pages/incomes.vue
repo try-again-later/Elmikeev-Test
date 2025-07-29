@@ -63,7 +63,15 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
-          <th>Артикул</th>
+          <th>
+            <v-select
+              v-model="partNamesFilter"
+              :items="partNames"
+              max-width="250"
+              label="Артикул"
+              multiple
+            ></v-select>
+          </th>
           <th>Штрих-код</th>
           <th>Дата</th>
           <th>Дата закрытия</th>
@@ -165,6 +173,16 @@ const quantityRange = computed<[number, number]>({
   },
 });
 
+const partNames = ref<number[]>([]);
+const partNamesFilter = ref<number[]>([]);
+
+watchEffect(() => {
+  filtersStore.dateFrom = dateFrom.value;
+  filtersStore.dateTo = dateTo.value;
+  filtersStore.page = page.value;
+  filtersStore.quantityRange = quantityRange.value;
+});
+
 watch(response, (newResponse) => {
   if (newResponse != null) {
     const quantityFilterWasMaxed = quantityRange.value[1] == quantityMax.value;
@@ -181,14 +199,12 @@ watch(response, (newResponse) => {
     if (quantityRange.value[1] == 0 || quantityFilterWasMaxed) {
       quantityRange.value[1] = quantityMax.value;
     }
-  }
-});
 
-watchEffect(() => {
-  filtersStore.dateFrom = dateFrom.value;
-  filtersStore.dateTo = dateTo.value;
-  filtersStore.page = page.value;
-  filtersStore.quantityRange = quantityRange.value;
+    partNames.value = [
+      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+    ];
+    partNamesFilter.value = [];
+  }
 });
 
 const filteredData = computed(() => {
@@ -198,7 +214,10 @@ const filteredData = computed(() => {
   return response.value.data.filter(
     (item) =>
       quantityRange.value[0] <= item.quantity &&
-      item.quantity <= quantityRange.value[1]
+      item.quantity <= quantityRange.value[1] &&
+      (partNamesFilter.value.length == 0 ||
+        (partNamesFilter.value.length > 0 &&
+          partNamesFilter.value.includes(item.nm_id)))
   );
 });
 

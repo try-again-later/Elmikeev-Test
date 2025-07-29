@@ -70,7 +70,15 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
-          <th>Артикул</th>
+          <th>
+            <v-select
+              v-model="partNamesFilter"
+              :items="partNames"
+              max-width="250"
+              label="Артикул"
+              multiple
+            ></v-select>
+          </th>
           <th>Штрих-код</th>
           <th>Дата</th>
           <th>Склад</th>
@@ -161,10 +169,22 @@ const inWayFromClient = computed<BooleanFilter>({
   },
 });
 
+const partNames = ref<number[]>([]);
+const partNamesFilter = ref<number[]>([]);
+
 watchEffect(() => {
   filtersStore.page = page.value;
   filtersStore.inWayFromClient = inWayFromClient.value;
   filtersStore.inWayToClient = inWayToClient.value;
+});
+
+watch(response, (newResponse) => {
+  if (newResponse != null) {
+    partNames.value = [
+      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+    ];
+    partNamesFilter.value = [];
+  }
 });
 
 const filteredData = computed(() => {
@@ -184,6 +204,11 @@ const filteredData = computed(() => {
         (inWayFromClient.value == "Да" && item.in_way_from_client) ||
         (inWayFromClient.value == "Нет" && !item.in_way_from_client);
     }
+
+    isIncluded &&=
+      partNamesFilter.value.length == 0 ||
+      (partNamesFilter.value.length > 0 &&
+        partNamesFilter.value.includes(item.nm_id));
 
     return isIncluded;
   });

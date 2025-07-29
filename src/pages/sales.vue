@@ -61,7 +61,15 @@
     <v-table fixed-header striped="even" class="mt-8">
       <thead>
         <tr>
-          <th>Артикул</th>
+          <th>
+            <v-select
+              v-model="partNamesFilter"
+              :items="partNames"
+              max-width="250"
+              label="Артикул"
+              multiple
+            ></v-select>
+          </th>
           <th>ID</th>
           <th>Штрих-код</th>
           <th>Дата</th>
@@ -163,6 +171,9 @@ const totalPriceRange = computed<[number, number]>({
   },
 });
 
+const partNames = ref<number[]>([]);
+const partNamesFilter = ref<number[]>([]);
+
 watchEffect(() => {
   filtersStore.dateFrom = dateFrom.value;
   filtersStore.dateTo = dateTo.value;
@@ -191,6 +202,11 @@ watch(response, (newResponse) => {
     if (totalPriceRange.value[1] == 0 || totalPriceFilterWasMaxed) {
       totalPriceRange.value[1] = totalPriceMax.value;
     }
+
+    partNames.value = [
+      ...new Set([...newResponse.data.map((item) => item.nm_id)]),
+    ];
+    partNamesFilter.value = [];
   }
 });
 
@@ -201,7 +217,10 @@ const filteredData = computed(() => {
   return response.value.data.filter(
     (item) =>
       totalPriceRange.value[0] <= Number.parseFloat(item.total_price) &&
-      Number.parseFloat(item.total_price) <= totalPriceRange.value[1]
+      Number.parseFloat(item.total_price) <= totalPriceRange.value[1] &&
+      (partNamesFilter.value.length == 0 ||
+        (partNamesFilter.value.length > 0 &&
+          partNamesFilter.value.includes(item.nm_id)))
   );
 });
 
