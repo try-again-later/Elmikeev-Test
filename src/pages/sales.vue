@@ -146,16 +146,17 @@ watch(isFetching, (value) => {
 const totalPriceMin = ref(0);
 const totalPriceMax = ref(0);
 
-const totalPriceRangeQuery = useRouteQuery(
-  "price-range",
-  `${totalPriceMin.value},${totalPriceMax.value}`
-);
+const totalPriceRangeQuery = useRouteQuery<string | null>("price-range", null);
 const totalPriceRange = computed<[number, number]>({
   get() {
-    return totalPriceRangeQuery.value
-      .split(",")
-      .map((rawValue) => Number.parseFloat(rawValue) || 0)
-      .slice(0, 2) as [number, number];
+    if (totalPriceRangeQuery.value == null) {
+      return [totalPriceMin.value, totalPriceMax.value];
+    } else {
+      return totalPriceRangeQuery.value
+        .split(",")
+        .map((rawValue) => Number.parseFloat(rawValue) || 0)
+        .slice(0, 2) as [number, number];
+    }
   },
   set(newRange) {
     totalPriceRangeQuery.value = `${newRange[0]},${newRange[1]}`;

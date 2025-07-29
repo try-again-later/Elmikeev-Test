@@ -127,17 +127,21 @@ watch(isFetching, (value) => {
 
 const warehouseNames = ref<string[]>([]);
 
-const warehouseNamesFilterQuery = useRouteQuery<string>("warehouses");
+const warehouseNamesFilterQuery = useRouteQuery<string | null>("warehouses", null);
 const warehouseNamesFilter = computed<string[]>({
   get() {
     if (warehouseNamesFilterQuery.value == null) {
-      return [];
+      return warehouseNames.value;
     } else {
       return warehouseNamesFilterQuery.value.split(",");
     }
   },
   set(value) {
-    warehouseNamesFilterQuery.value = value.join(",");
+    if (value.length == warehouseNames.value.length) {
+      warehouseNamesFilterQuery.value = null;
+    } else {
+      warehouseNamesFilterQuery.value = value.join(",");
+    }
   },
 });
 
@@ -162,7 +166,12 @@ watchEffect(() => {
   filtersStore.dateFrom = dateFrom.value;
   filtersStore.dateTo = dateTo.value;
   filtersStore.page = page.value;
-  filtersStore.warehouseNamesFilter = warehouseNamesFilter.value;
+
+  if (warehouseNames.value.length != warehouseNamesFilter.value.length) {
+    filtersStore.warehouseNamesFilter = warehouseNamesFilter.value;
+  } else {
+    filtersStore.warehouseNamesFilter = null;
+  }
 });
 
 const filteredData = computed(() => {

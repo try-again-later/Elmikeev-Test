@@ -148,16 +148,17 @@ watch(isFetching, (value) => {
 const quantityMin = ref(0);
 const quantityMax = ref(0);
 
-const quantityRangeQuery = useRouteQuery(
-  "quantity-range",
-  `${quantityMin.value},${quantityMax.value}`
-);
+const quantityRangeQuery = useRouteQuery<string | null>("quantity-range", null);
 const quantityRange = computed<[number, number]>({
   get() {
-    return quantityRangeQuery.value
-      .split(",")
-      .map((rawValue) => Number.parseFloat(rawValue) || 0)
-      .slice(0, 2) as [number, number];
+    if (quantityRangeQuery.value == null) {
+      return [quantityMin.value, quantityMax.value];
+    } else {
+      return quantityRangeQuery.value
+        .split(",")
+        .map((rawValue) => Number.parseFloat(rawValue) || 0)
+        .slice(0, 2) as [number, number];
+    }
   },
   set(newRange) {
     quantityRangeQuery.value = `${newRange[0]},${newRange[1]}`;
