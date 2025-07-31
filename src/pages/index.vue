@@ -1,6 +1,6 @@
 <template>
   <h1 class="mb-8">Главная</h1>
-  <v-sheet>Текущий период</v-sheet>
+  <v-sheet class="mb-2">Текущий период:</v-sheet>
   <v-row>
     <v-col cols="12" sm="6">
       <v-date-input
@@ -15,6 +15,23 @@
       ></v-date-input>
     </v-col>
   </v-row>
+
+  <v-sheet class="mb-2">Предыдущий период:</v-sheet>
+  <v-row>
+    <v-col cols="12" sm="6">
+      <v-date-input
+        label="Начиная с даты"
+        v-model="previousPeriodDateFrom"
+      ></v-date-input>
+    </v-col>
+    <v-col cols="12" sm="6">
+      <v-date-input
+        label="Заканчивая датой"
+        v-model="previousPeriodDateTo"
+      ></v-date-input>
+    </v-col>
+  </v-row>
+
   <v-sheet
     v-if="currentPeriodError != null"
     class="d-flex flex-column ga-4 align-center"
@@ -33,7 +50,10 @@
                   partNames.length * 20
                 }px; width: 100%`"
               >
-                <Bar :data="countPerPartName" :options="chartCommonOptions" />
+                <Bar
+                  :data="countPerPartNameChartData"
+                  :options="chartCommonOptions"
+                />
               </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
@@ -51,7 +71,7 @@
                 }px; width: 100%`"
               >
                 <Bar
-                  :data="totalPricePerPartName"
+                  :data="totalPricePerPartNameChartData"
                   :options="chartCommonOptions"
                 />
               </div>
@@ -67,11 +87,11 @@
             <v-expansion-panel-text>
               <div
                 :style="`position: relative; height: ${
-                  cancelCountPerPartName.datasets[0].data.length * 20
+                  cancelCountPerPartNameChartData.datasets[0].data.length * 20
                 }px; width: 100%`"
               >
                 <Bar
-                  :data="cancelCountPerPartName"
+                  :data="cancelCountPerPartNameChartData"
                   :options="chartCommonOptions"
                 />
               </div>
@@ -102,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { subMonths } from "date-fns";
+import { subDays } from "date-fns";
 import { useFetch } from "@vueuse/core";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { Bar } from "vue-chartjs";
@@ -111,9 +131,18 @@ import {
   ordersListRequestUrl,
   type OrdersListResponse,
 } from "@/api/order/list";
+import orderCountPerPartName from "@/data/orderCountPerPartName";
+import orderTotalPricePerPartName from "@/data/orderTotalPricePerPartName";
+import orderCancelCountPerPartName from "@/data/orderCancelCountPerPartName";
+import orderAverageDiscountPerPartName from "@/data/orderAverageDiscountPerPartName";
 
-const currentPeriodDateFrom = ref(subMonths(new Date(), 1));
+// Last week
+const currentPeriodDateFrom = ref(subDays(new Date(), 7));
 const currentPeriodDateTo = ref(new Date());
+
+// The week before the last week
+const previousPeriodDateFrom = ref(subDays(new Date(), 15));
+const previousPeriodDateTo = ref(subDays(new Date(), 8));
 
 const currentPeriodUrl = computed(
   () =>
@@ -165,26 +194,14 @@ const chartCommonOptions = {
   },
 } as const;
 
-const countPerPartName = computed(() => {
-  const dataPerLabel: Record<number, number> = {};
-  for (const order of currentPeriodOrders.value) {
-    if (!(order.nm_id in dataPerLabel)) {
-      dataPerLabel[order.nm_id] = 1;
-    } else {
-      dataPerLabel[order.nm_id] += 1;
-    }
-  }
-
-  const data: number[] = [];
-  for (const label of partNames.value) {
-    data.push(dataPerLabel[label]);
-  }
+const countPerPartNameChartData = computed(() => {
+  const data = orderCountPerPartName(currentPeriodOrders.value);
 
   return {
-    labels: partNames.value,
+    labels: data.map((entry) => entry.partName),
     datasets: [
       {
-        data,
+        data: data.map((entry) => entry.count),
         label: "Количество продаж по каждому артикулу",
         backgroundColor: "rgb(255, 99, 132)",
       },
@@ -192,26 +209,14 @@ const countPerPartName = computed(() => {
   };
 });
 
-const totalPricePerPartName = computed(() => {
-  const dataPerLabel: Record<number, number> = {};
-  for (const order of currentPeriodOrders.value) {
-    if (!(order.nm_id in dataPerLabel)) {
-      dataPerLabel[order.nm_id] = Number.parseFloat(order.total_price) || 0;
-    } else {
-      dataPerLabel[order.nm_id] += Number.parseFloat(order.total_price) || 0;
-    }
-  }
-
-  const data: number[] = [];
-  for (const label of partNames.value) {
-    data.push(dataPerLabel[label]);
-  }
+const totalPricePerPartNameChartData = computed(() => {
+  const data = orderTotalPricePerPartName(currentPeriodOrders.value);
 
   return {
-    labels: partNames.value,
+    labels: data.map((entry) => entry.partName),
     datasets: [
       {
-        data,
+        data: data.map((entry) => entry.totalPrice),
         label: "Суммарная стоимость продаж по каждому артикулу",
         backgroundColor: "rgb(255, 99, 132)",
       },
@@ -219,30 +224,14 @@ const totalPricePerPartName = computed(() => {
   };
 });
 
-const cancelCountPerPartName = computed(() => {
-  const dataPerLabel: Record<number, number> = {};
-  for (const order of currentPeriodOrders.value) {
-    if (order.is_cancel) {
-      if (!(order.nm_id in dataPerLabel)) {
-        dataPerLabel[order.nm_id] = 1;
-      } else {
-        dataPerLabel[order.nm_id] += 1;
-      }
-    }
-  }
-
-  const data: number[] = [];
-  for (const label of partNames.value) {
-    if (label in dataPerLabel) {
-      data.push(dataPerLabel[label]);
-    }
-  }
+const cancelCountPerPartNameChartData = computed(() => {
+  const data = orderCancelCountPerPartName(currentPeriodOrders.value);
 
   return {
-    labels: Object.keys(dataPerLabel),
+    labels: data.map((entry) => entry.partName),
     datasets: [
       {
-        data,
+        data: data.map((entry) => entry.cancelCount),
         label: "Количество отмен по каждому артикулу",
         backgroundColor: "rgb(255, 99, 132)",
       },
@@ -251,29 +240,13 @@ const cancelCountPerPartName = computed(() => {
 });
 
 const averageDiscountPerPartName = computed(() => {
-  const dataPerLabel: Record<number, { count: number; sum: number }> = {};
-  for (const order of currentPeriodOrders.value) {
-    if (!(order.nm_id in dataPerLabel)) {
-      dataPerLabel[order.nm_id] = {
-        count: 1,
-        sum: order.discount_percent,
-      };
-    } else {
-      dataPerLabel[order.nm_id].count += 1;
-      dataPerLabel[order.nm_id].sum += order.discount_percent;
-    }
-  }
-
-  const data: number[] = [];
-  for (const label of partNames.value) {
-    data.push(dataPerLabel[label].sum / dataPerLabel[label].count);
-  }
+  const data = orderAverageDiscountPerPartName(currentPeriodOrders.value);
 
   return {
-    labels: partNames.value,
+    labels: data.map((entry) => entry.partName),
     datasets: [
       {
-        data,
+        data: data.map((entry) => entry.averageDiscount),
         label: "Средняя скидка по каждому артикулу",
         backgroundColor: "rgb(255, 99, 132)",
       },
