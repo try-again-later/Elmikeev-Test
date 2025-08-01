@@ -1,0 +1,1 @@
+import{au as i,A as t}from"./index-DNGCdE2A.js";const l=i("stockFilters",()=>{const e=t(null),o=t("Не важно"),r=t("Не важно"),n=t([]),s=t([]),a=t([]);return{page:e,inWayToClient:o,inWayFromClient:r,partNamesFilter:n,brandFilter:s,categoryFilter:a}});export{l as u};
