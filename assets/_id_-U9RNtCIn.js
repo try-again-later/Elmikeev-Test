@@ -1,0 +1,1 @@
+import{a1 as e,av as s,a3 as t,a4 as o,at as n,aq as r}from"./index-Di-_fh1h.js";const c={class:"mb-8"},u=e({__name:"[id]",setup(_){const a=s();return(p,i)=>(o(),t("h1",c,"Информация по заказам с артикулом "+n(r(a).params.id),1))}});export{u as default};
