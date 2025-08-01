@@ -6,7 +6,7 @@
         :key="item.route"
         :title="item.title"
         :prepend-icon="item.icon"
-        :to="{ path: item.route, query: item.query, replace: true }"
+        :to="{ path: item.route, query: item.query }"
       />
     </v-list>
   </v-navigation-drawer>
@@ -25,7 +25,7 @@
             :key="item.route"
             :text="item.title"
             :prepend-icon="item.icon"
-            :to="{ path: item.route, query: item.query, replace: true }"
+            :to="{ path: item.route, query: item.query }"
           />
         </template>
 

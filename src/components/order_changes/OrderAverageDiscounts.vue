@@ -10,7 +10,6 @@
       @click="
         $router.push({
           path: '/order-changes/average-discounts',
-          replace: true,
         })
       "
     />
@@ -22,7 +21,6 @@
     v-if="!showFullTable"
     :to="{
       path: '/order-changes/average-discounts',
-      replace: true,
     }"
   >
     Перейти на страницу показателя
@@ -40,7 +38,15 @@
     </thead>
     <tbody>
       <tr v-for="entry in orderAverageDiscountChanges">
-        <td>{{ entry.partName }}</td>
+        <td>
+          <v-btn
+            variant="tonal"
+            size="small"
+            :to="{ path: `/order/${entry.partName}` }"
+          >
+            {{ entry.partName }}
+          </v-btn>
+        </td>
         <td>{{ entry.previousAverageDiscount.toFixed(2) }}</td>
         <td>{{ entry.currentAverageDiscount.toFixed(2) }}</td>
         <td>

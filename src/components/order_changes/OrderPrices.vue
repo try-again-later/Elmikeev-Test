@@ -10,7 +10,6 @@
       @click="
         $router.push({
           path: '/order-changes/prices',
-          replace: true,
         })
       "
     />
@@ -20,7 +19,7 @@
     variant="outlined"
     class="my-4"
     v-if="!showFullTable"
-    :to="{ path: '/order-changes/prices', replace: true }"
+    :to="{ path: '/order-changes/prices' }"
   >
     Перейти на страницу показателя
   </v-btn>
@@ -39,7 +38,15 @@
     </thead>
     <tbody>
       <tr v-for="entry in orderTotalPriceChanges">
-        <td>{{ entry.partName }}</td>
+        <td>
+          <v-btn
+            variant="tonal"
+            size="small"
+            :to="{ path: `/order/${entry.partName}` }"
+          >
+            {{ entry.partName }}
+          </v-btn>
+        </td>
         <td>{{ entry.previousTotalPrice.toFixed(2) }}</td>
         <td>{{ entry.currentTotalPrice.toFixed(2) }}</td>
         <td>

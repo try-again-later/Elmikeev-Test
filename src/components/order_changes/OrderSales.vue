@@ -7,7 +7,7 @@
     <Bar
       :data="countPerPartNameChartData"
       :options="chartCommonOptions"
-      @click="$router.push({ path: '/order-changes/sales', replace: true })"
+      @click="$router.push({ path: '/order-changes/sales' })"
     />
   </v-sheet>
 
@@ -15,7 +15,7 @@
     variant="outlined"
     class="my-4"
     v-if="!showFullTable"
-    :to="{ path: '/order-changes/sales', replace: true }"
+    :to="{ path: '/order-changes/sales' }"
   >
     Перейти на страницу показателя
   </v-btn>
@@ -32,7 +32,15 @@
     </thead>
     <tbody>
       <tr v-for="entry in orderCountsChanges">
-        <td>{{ entry.partName }}</td>
+        <td>
+          <v-btn
+            variant="tonal"
+            size="small"
+            :to="{ path: `/order/${entry.partName}` }"
+          >
+            {{ entry.partName }}
+          </v-btn>
+        </td>
         <td>{{ entry.previousOrderCount }}</td>
         <td>{{ entry.currentOrderCount }}</td>
         <td>
