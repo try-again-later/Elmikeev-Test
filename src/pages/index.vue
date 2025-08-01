@@ -75,8 +75,11 @@
   <template v-if="!orders.hasError">
     <v-row>
       <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Количество продаж по каждому артикулу">
+        <v-expansion-panels v-model="salesPanel">
+          <v-expansion-panel
+            title="Количество продаж по каждому артикулу"
+            value="sales"
+          >
             <v-expansion-panel-text>
               <OrderSales :show-full-table="false" />
             </v-expansion-panel-text>
@@ -85,9 +88,10 @@
       </v-col>
 
       <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
+        <v-expansion-panels v-model="totalPricesPanel">
           <v-expansion-panel
             title="Суммарная стоимость продаж по каждому артикулу"
+            value="totalPrices"
           >
             <v-expansion-panel-text>
               <OrderPrices :show-full-table="false" />
@@ -98,8 +102,11 @@
     </v-row>
     <v-row>
       <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Количество отмен по каждому артикулу">
+        <v-expansion-panels v-model="cancelsPanel">
+          <v-expansion-panel
+            title="Количество отмен по каждому артикулу"
+            value="cancels"
+          >
             <v-expansion-panel-text>
               <OrderCancels :show-full-table="false" />
             </v-expansion-panel-text>
@@ -108,8 +115,11 @@
       </v-col>
 
       <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Средняя скидка по каждому артикулу">
+        <v-expansion-panels v-model="averageDiscountsPanel">
+          <v-expansion-panel
+            title="Средняя скидка по каждому артикулу"
+            value="averageDiscounts"
+          >
             <v-expansion-panel-text>
               <OrderAverageDiscounts :show-full-table="false" />
             </v-expansion-panel-text>
@@ -129,6 +139,11 @@ import OrderCancels from "@/components/order_changes/OrderCancels.vue";
 import OrderAverageDiscounts from "@/components/order_changes/OrderAverageDiscounts.vue";
 
 import { useOrderPeriodChanges } from "@/stores/orderPeriodChanges";
+
+const salesPanel = ref(["sales"]);
+const totalPricesPanel = ref(["totalPrices"]);
+const cancelsPanel = ref(["cancels"]);
+const averageDiscountsPanel = ref(["averageDiscounts"]);
 
 const orders = useOrderPeriodChanges();
 
