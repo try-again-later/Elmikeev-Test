@@ -5,13 +5,13 @@
     <v-col cols="12" sm="6">
       <v-date-input
         label="Начиная с даты"
-        v-model="currentPeriodDateFrom"
+        v-model="orders.currentPeriodDateFrom"
       ></v-date-input>
     </v-col>
     <v-col cols="12" sm="6">
       <v-date-input
         label="Заканчивая датой"
-        v-model="currentPeriodDateTo"
+        v-model="orders.currentPeriodDateTo"
       ></v-date-input>
     </v-col>
   </v-row>
@@ -21,25 +21,22 @@
     <v-col cols="12" sm="6">
       <v-date-input
         label="Начиная с даты"
-        v-model="previousPeriodDateFrom"
+        v-model="orders.previousPeriodDateFrom"
       ></v-date-input>
     </v-col>
     <v-col cols="12" sm="6">
       <v-date-input
         label="Заканчивая датой"
-        v-model="previousPeriodDateTo"
+        v-model="orders.previousPeriodDateTo"
       ></v-date-input>
     </v-col>
   </v-row>
 
-  <v-sheet
-    v-if="currentPeriodError != null"
-    class="d-flex flex-column ga-4 align-center"
-  >
+  <v-sheet v-if="orders.hasError" class="d-flex flex-column ga-4 align-center">
     <p>Ошибка при загрузке данных</p>
-    <v-btn @click="currentPeriodExecute">Попробовать ещё раз</v-btn>
+    <v-btn @click="orders.retry">Попробовать ещё раз</v-btn>
   </v-sheet>
-  <template v-if="currentPeriodError == null">
+  <template v-if="!orders.hasError">
     <v-row>
       <v-col cols="12" sm="6" class="position-relative">
         <v-expansion-panels>
@@ -218,15 +215,9 @@
 </template>
 
 <script setup lang="ts">
-import { subDays } from "date-fns";
-import { useFetch } from "@vueuse/core";
 import { useNProgress } from "@vueuse/integrations/useNProgress";
 import { Bar } from "vue-chartjs";
 
-import {
-  ordersListRequestUrl,
-  type OrdersListResponse,
-} from "@/api/order/list";
 import orderCountPerPartName, {
   compareOrderCounts,
 } from "@/data/orderCountPerPartName";
@@ -239,113 +230,51 @@ import orderCancelCountPerPartName, {
 import orderAverageDiscountPerPartName, {
   compareOrderAverageDiscounts,
 } from "@/data/orderAverageDiscountPerPartName";
+import { useOrderPeriodChanges } from "@/stores/orderPeriodChanges";
 
-// Last week by default
-const currentPeriodDateFrom = ref(subDays(new Date(), 7));
-const currentPeriodDateTo = ref(new Date());
-
-// The week before the last week by default
-const previousPeriodDateFrom = ref(subDays(new Date(), 15));
-const previousPeriodDateTo = ref(subDays(new Date(), 8));
-
-// Fetching current period orders
-
-const currentPeriodUrl = computed(
-  () =>
-    ordersListRequestUrl({
-      dateFrom: currentPeriodDateFrom.value,
-      dateTo: currentPeriodDateTo.value,
-      page: 1,
-      limit: 500,
-    }).href
-);
-
-const {
-  execute: currentPeriodExecute,
-  isFetching: currentPeriodIsFetching,
-  error: currentPeriodError,
-  data: currentPeriodResponse,
-} = useFetch(currentPeriodUrl, { refetch: true })
-  .get()
-  .json<OrdersListResponse>();
-
-const currentPeriodOrders = computed(() => {
-  if (currentPeriodResponse.value == null) {
-    return [];
-  }
-  return currentPeriodResponse.value.data;
-});
-
-// Fetching previous period orders
-
-const previousPeriodUrl = computed(
-  () =>
-    ordersListRequestUrl({
-      dateFrom: previousPeriodDateFrom.value,
-      dateTo: previousPeriodDateTo.value,
-      page: 1,
-      limit: 500,
-    }).href
-);
-
-const {
-  execute: previousPeriodExecute,
-  isFetching: previousPeriodIsFetching,
-  error: previousPeriodError,
-  data: previousPeriodResponse,
-} = useFetch(previousPeriodUrl, { refetch: true })
-  .get()
-  .json<OrdersListResponse>();
-
-const previousPeriodOrders = computed(() => {
-  if (previousPeriodResponse.value == null) {
-    return [];
-  }
-  return previousPeriodResponse.value.data;
-});
+const orders = useOrderPeriodChanges();
 
 // Loading bar
 
 const { isLoading } = useNProgress();
 watchEffect(() => {
-  isLoading.value =
-    currentPeriodIsFetching.value || previousPeriodIsFetching.value;
+  isLoading.value = orders.isFetching;
 });
 
 // Data for drawing tables comparing the current and the previous periods
 
 const orderCountsChanges = computed(() => {
   return compareOrderCounts(
-    previousPeriodOrders.value,
-    currentPeriodOrders.value
+    orders.previousPeriodOrders,
+    orders.currentPeriodOrders
   ).slice(0, 20);
 });
 
 const orderTotalPriceChanges = computed(() => {
   return compareOrderTotalPrices(
-    previousPeriodOrders.value,
-    currentPeriodOrders.value
+    orders.previousPeriodOrders,
+    orders.currentPeriodOrders
   ).slice(0, 20);
 });
 
 const orderCancelCountChanges = computed(() => {
   return compareOrderCancelCounts(
-    previousPeriodOrders.value,
-    currentPeriodOrders.value
+    orders.previousPeriodOrders,
+    orders.currentPeriodOrders
   ).slice(0, 20);
 });
 
 const orderAverageDiscountChanges = computed(() => {
   return compareOrderAverageDiscounts(
-    previousPeriodOrders.value,
-    currentPeriodOrders.value
+    orders.previousPeriodOrders,
+    orders.currentPeriodOrders
   ).slice(0, 20);
 });
 
 // Data for drawing charts for the current period
 
 const currentPeriodPartNames = computed(() => [
-  ...new Set(currentPeriodOrders.value.map((item) => item.nm_id)),
+  ...new Set(orders.currentPeriodOrders.map((item) => item.nm_id)),
 ]);
 
 const chartCommonOptions = {
@@ -364,7 +293,7 @@ const chartCommonOptions = {
 } as const;
 
 const countPerPartNameChartData = computed(() => {
-  const data = orderCountPerPartName(currentPeriodOrders.value);
+  const data = orderCountPerPartName(orders.currentPeriodOrders);
 
   return {
     labels: data.map((entry) => entry.partName),
@@ -379,7 +308,7 @@ const countPerPartNameChartData = computed(() => {
 });
 
 const totalPricePerPartNameChartData = computed(() => {
-  const data = orderTotalPricePerPartName(currentPeriodOrders.value);
+  const data = orderTotalPricePerPartName(orders.currentPeriodOrders);
 
   return {
     labels: data.map((entry) => entry.partName),
@@ -394,7 +323,7 @@ const totalPricePerPartNameChartData = computed(() => {
 });
 
 const cancelCountPerPartNameChartData = computed(() => {
-  const data = orderCancelCountPerPartName(currentPeriodOrders.value);
+  const data = orderCancelCountPerPartName(orders.currentPeriodOrders);
 
   return {
     labels: data.map((entry) => entry.partName),
@@ -409,7 +338,7 @@ const cancelCountPerPartNameChartData = computed(() => {
 });
 
 const averageDiscountPerPartName = computed(() => {
-  const data = orderAverageDiscountPerPartName(currentPeriodOrders.value);
+  const data = orderAverageDiscountPerPartName(orders.currentPeriodOrders);
 
   return {
     labels: data.map((entry) => entry.partName),
