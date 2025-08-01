@@ -27,7 +27,12 @@
     Перейти на страницу показателя
   </v-btn>
 
-  <v-sheet class="my-2"> Топ 20 изменений по средней скидке: </v-sheet>
+  <v-sheet class="my-2" v-if="!showFullTable">
+    Топ 20 изменений по средней скидке:
+  </v-sheet>
+  <v-sheet class="my-2" v-else>
+    Изменения по средней скидке:
+  </v-sheet>
   <v-table>
     <thead>
       <tr>

@@ -21,7 +21,10 @@
     Перейти на страницу показателя
   </v-btn>
 
-  <v-sheet class="my-2">Топ 20 изменений по продажам:</v-sheet>
+  <v-sheet class="my-2" v-if="!showFullTable">
+    Топ 20 изменений по количеству продаж:
+  </v-sheet>
+  <v-sheet class="my-2" v-else> Изменения по количеству продаж: </v-sheet>
   <v-table>
     <thead>
       <tr>

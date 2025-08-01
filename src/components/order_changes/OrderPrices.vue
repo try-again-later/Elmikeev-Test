@@ -25,8 +25,11 @@
     Перейти на страницу показателя
   </v-btn>
 
-  <v-sheet class="my-2">
+  <v-sheet class="my-2" v-if="!showFullTable">
     Топ 20 изменений по суммарной стоимости продаж:
+  </v-sheet>
+  <v-sheet class="my-2" v-else>
+    Изменения по суммарной стоимости продаж:
   </v-sheet>
   <v-table>
     <thead>

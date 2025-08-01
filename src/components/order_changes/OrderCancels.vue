@@ -25,7 +25,10 @@
     Перейти на страницу показателя
   </v-btn>
 
-  <v-sheet class="my-2"> Топ 20 изменений по количеству отмен: </v-sheet>
+  <v-sheet class="my-2" v-if="!showFullTable">
+    Топ 20 изменений по количеству отмен:
+  </v-sheet>
+  <v-sheet class="my-2" v-else>Изменения по количеству отмен:</v-sheet>
   <v-table>
     <thead>
       <tr>
