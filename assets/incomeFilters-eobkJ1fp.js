@@ -1,0 +1,1 @@
+import{ae as a,A as e}from"./index-D1QMmaq8.js";const c=a("incomeFilters",()=>{const t=e(null),n=e(null),o=e(null),r=e(null),s=e([]);return{dateFrom:t,dateTo:n,page:o,quantityRange:r,partNamesFilter:s}});export{c as u};
