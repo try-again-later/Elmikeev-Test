@@ -32,7 +32,11 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="entry in orderCountsChanges">
+      <tr
+        v-for="entry in orderCountsChanges"
+        @click="$router.push({ path: `/order/${entry.partName}` })"
+        class="cursor-pointer"
+      >
         <td>
           <v-btn
             variant="tonal"
