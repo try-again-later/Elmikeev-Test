@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { subDays } from "date-fns";
-import { useFetch } from "@vueuse/core";
+import { useFetch, useScrollLock } from "@vueuse/core";
 
 import {
   ordersListRequestUrl,
@@ -161,6 +161,21 @@ export const useOrderPeriodChanges = defineStore("orderPeriodChanges", () => {
     );
   });
 
+  const getOrder = (id: number): Order | null => {
+    for (const order of currentPeriodOrders.value.reverse()) {
+      if (order.nm_id == id) {
+        return order;
+      }
+    }
+    for (const order of previousPeriodOrders.value.reverse()) {
+      if (order.nm_id == id) {
+        return order;
+      }
+    }
+
+    return null;
+  };
+
   return {
     currentPeriodDateFrom,
     currentPeriodDateTo,
@@ -173,6 +188,7 @@ export const useOrderPeriodChanges = defineStore("orderPeriodChanges", () => {
 
     currentPeriodOrders: filteredCurrentPeriodOrders,
     previousPeriodOrders: filteredPreviousPeriodOrders,
+    getOrder,
 
     allPartNames,
     partNamesFilter,
