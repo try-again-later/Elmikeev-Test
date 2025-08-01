@@ -1,1 +1,0 @@
-import{au as a,A as t}from"./index-Di-_fh1h.js";const u=a("incomeFilters",()=>{const e=t(null),n=t(null),o=t(null),r=t(null),s=t([]);return{dateFrom:e,dateTo:n,page:o,quantityRange:r,partNamesFilter:s}});export{u};
