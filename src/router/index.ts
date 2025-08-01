@@ -9,14 +9,9 @@ import { createRouter, createWebHashHistory } from "vue-router/auto";
 import { setupLayouts } from "virtual:generated-layouts";
 import { routes } from "vue-router/auto-routes";
 
-import OrderChanges from "@/pages/order-changes.vue";
-
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
-  routes: setupLayouts([
-    ...routes,
-    { path: "/order-changes/:type", component: OrderChanges },
-  ]),
+  routes: setupLayouts(routes),
 });
 
 // Workaround for https://github.com/vitejs/vite/issues/11804

@@ -74,17 +74,25 @@
     <v-btn @click="orders.retry">Попробовать ещё раз</v-btn>
   </v-sheet>
   <template v-if="!orders.hasError">
-    <template v-if="$route.params.type == 'sales'">
+    <template v-if="route.params.type == 'sales'">
       <OrderSales :show-full-table="true" />
     </template>
-    <template v-else-if="$route.params.type == 'prices'">
+    <template v-else-if="route.params.type == 'prices'">
       <OrderPrices :show-full-table="true" />
     </template>
-    <template v-else-if="$route.params.type == 'cancels'">
+    <template v-else-if="route.params.type == 'cancels'">
       <OrderCancels :show-full-table="true" />
     </template>
-    <template v-else-if="$route.params.type == 'average-discounts'">
+    <template v-else-if="route.params.type == 'average-discounts'">
       <OrderAverageDiscounts :show-full-table="true" />
+    </template>
+    <template v-else="route.params.type == 'average-discounts'">
+      <v-alert
+        density="compact"
+        text="Неизвестный показатель"
+        title="Ошибка"
+        type="warning"
+      ></v-alert>
     </template>
   </template>
 </template>
@@ -95,6 +103,8 @@ import OrderPrices from "@/components/order_changes/OrderPrices.vue";
 import OrderCancels from "@/components/order_changes/OrderCancels.vue";
 import OrderAverageDiscounts from "@/components/order_changes/OrderAverageDiscounts.vue";
 import { useOrderPeriodChanges } from "@/stores/orderPeriodChanges";
+
+const route = useRoute("/order-changes/[type]");
 
 const orders = useOrderPeriodChanges();
 </script>
