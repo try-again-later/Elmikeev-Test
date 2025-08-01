@@ -1,1 +1,0 @@
-import{au as a,A as t}from"./index-DNGCdE2A.js";const u=a("incomeFilters",()=>{const e=t(null),n=t(null),o=t(null),r=t(null),s=t([]);return{dateFrom:e,dateTo:n,page:o,quantityRange:r,partNamesFilter:s}});export{u};
