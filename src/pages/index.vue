@@ -32,6 +32,42 @@
     </v-col>
   </v-row>
 
+  <v-sheet class="mb-2">Фильтры:</v-sheet>
+  <v-row>
+    <v-col cols="12" sm="3">
+      <v-select
+        v-model="orders.partNamesFilter"
+        :items="orders.allPartNames"
+        label="Артикул"
+        multiple
+      ></v-select>
+    </v-col>
+    <v-col cols="12" sm="3">
+      <v-select
+        v-model="orders.categoryFilter"
+        :items="orders.allCategories"
+        label="Категория"
+        multiple
+      ></v-select>
+    </v-col>
+    <v-col cols="12" sm="3">
+      <v-select
+        v-model="orders.brandFilter"
+        :items="orders.allBrands"
+        label="Бренд"
+        multiple
+      ></v-select>
+    </v-col>
+    <v-col cols="12" sm="3">
+      <v-select
+        v-model="orders.regionFilter"
+        :items="orders.allRegions"
+        label="Регион"
+        multiple
+      ></v-select>
+    </v-col>
+  </v-row>
+
   <v-sheet v-if="orders.hasError" class="d-flex flex-column ga-4 align-center">
     <p>Ошибка при загрузке данных</p>
     <v-btn @click="orders.retry">Попробовать ещё раз</v-btn>
@@ -42,16 +78,16 @@
         <v-expansion-panels>
           <v-expansion-panel title="Количество продаж по каждому артикулу">
             <v-expansion-panel-text>
-              <div
-                :style="`position: relative; height: ${
-                  currentPeriodPartNames.length * 20
-                }px; width: 100%`"
+              <v-sheet
+                class="position-relative w-100"
+                :height="countPerPartNameChartData.maxHeight"
+                :min-height="200"
               >
                 <Bar
                   :data="countPerPartNameChartData"
                   :options="chartCommonOptions"
                 />
-              </div>
+              </v-sheet>
 
               <v-sheet class="my-2">Топ 20 изменений по продажам:</v-sheet>
               <v-table>
@@ -85,16 +121,16 @@
             title="Суммарная стоимость продаж по каждому артикулу"
           >
             <v-expansion-panel-text>
-              <div
-                :style="`position: relative; height: ${
-                  currentPeriodPartNames.length * 20
-                }px; width: 100%`"
+              <v-sheet
+                class="position-relative w-100"
+                :height="totalPricePerPartNameChartData.maxHeight"
+                :min-height="200"
               >
                 <Bar
                   :data="totalPricePerPartNameChartData"
                   :options="chartCommonOptions"
                 />
-              </div>
+              </v-sheet>
 
               <v-sheet class="my-2">
                 Топ 20 изменений по суммарной стоимости продаж:
@@ -129,16 +165,16 @@
         <v-expansion-panels>
           <v-expansion-panel title="Количество отмен по каждому артикулу">
             <v-expansion-panel-text>
-              <div
-                :style="`position: relative; height: ${
-                  cancelCountPerPartNameChartData.datasets[0].data.length * 20
-                }px; width: 100%`"
+              <v-sheet
+                class="position-relative w-100"
+                :height="cancelCountPerPartNameChartData.maxHeight"
+                :min-height="200"
               >
                 <Bar
                   :data="cancelCountPerPartNameChartData"
                   :options="chartCommonOptions"
                 />
-              </div>
+              </v-sheet>
 
               <v-sheet class="my-2">
                 Топ 20 изменений по количеству отмен:
@@ -172,16 +208,16 @@
         <v-expansion-panels>
           <v-expansion-panel title="Средняя скидка по каждому артикулу">
             <v-expansion-panel-text>
-              <div
-                :style="`position: relative; height: ${
-                  currentPeriodPartNames.length * 20
-                }px; width: 100%`"
+              <v-sheet
+                class="position-relative w-100"
+                :height="averageDiscountPerPartNameChartData.maxHeight"
+                :min-height="200"
               >
                 <Bar
-                  :data="averageDiscountPerPartName"
+                  :data="averageDiscountPerPartNameChartData"
                   :options="chartCommonOptions"
                 />
-              </div>
+              </v-sheet>
 
               <v-sheet class="my-2">
                 Топ 20 изменений по средней скидке:
@@ -273,10 +309,6 @@ const orderAverageDiscountChanges = computed(() => {
 
 // Data for drawing charts for the current period
 
-const currentPeriodPartNames = computed(() => [
-  ...new Set(orders.currentPeriodOrders.map((item) => item.nm_id)),
-]);
-
 const chartCommonOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -304,6 +336,7 @@ const countPerPartNameChartData = computed(() => {
         backgroundColor: "rgb(255, 99, 132)",
       },
     ],
+    maxHeight: data.length * 20,
   };
 });
 
@@ -319,6 +352,7 @@ const totalPricePerPartNameChartData = computed(() => {
         backgroundColor: "rgb(255, 99, 132)",
       },
     ],
+    maxHeight: data.length * 20,
   };
 });
 
@@ -334,10 +368,11 @@ const cancelCountPerPartNameChartData = computed(() => {
         backgroundColor: "rgb(255, 99, 132)",
       },
     ],
+    maxHeight: data.length * 20,
   };
 });
 
-const averageDiscountPerPartName = computed(() => {
+const averageDiscountPerPartNameChartData = computed(() => {
   const data = orderAverageDiscountPerPartName(orders.currentPeriodOrders);
 
   return {
@@ -349,6 +384,7 @@ const averageDiscountPerPartName = computed(() => {
         backgroundColor: "rgb(255, 99, 132)",
       },
     ],
+    maxHeight: data.length * 20,
   };
 });
 </script>
