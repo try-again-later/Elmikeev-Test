@@ -47,7 +47,7 @@
             <v-expansion-panel-text>
               <div
                 :style="`position: relative; height: ${
-                  partNames.length * 20
+                  currentPeriodPartNames.length * 20
                 }px; width: 100%`"
               >
                 <Bar
@@ -55,10 +55,33 @@
                   :options="chartCommonOptions"
                 />
               </div>
+
+              <v-sheet class="my-2">Топ 20 изменений по продажам:</v-sheet>
+              <v-table>
+                <thead>
+                  <tr>
+                    <th>Артикул</th>
+                    <th>Количество продаж в предыдущем периоде</th>
+                    <th>Количество продаж в текущем периоде</th>
+                    <th>Процент изменения</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in orderCountsChanges">
+                    <td>{{ entry.partName }}</td>
+                    <td>{{ entry.previousOrderCount }}</td>
+                    <td>{{ entry.currentOrderCount }}</td>
+                    <td>
+                      <PercentageChange :change="entry.change" />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
+
       <v-col cols="12" sm="6" class="position-relative">
         <v-expansion-panels>
           <v-expansion-panel
@@ -67,7 +90,7 @@
             <v-expansion-panel-text>
               <div
                 :style="`position: relative; height: ${
-                  partNames.length * 20
+                  currentPeriodPartNames.length * 20
                 }px; width: 100%`"
               >
                 <Bar
@@ -75,6 +98,30 @@
                   :options="chartCommonOptions"
                 />
               </div>
+
+              <v-sheet class="my-2">
+                Топ 20 изменений по суммарной стоимости продаж:
+              </v-sheet>
+              <v-table>
+                <thead>
+                  <tr>
+                    <th>Артикул</th>
+                    <th>Сумма за предыдущий период</th>
+                    <th>Сумма за текущий период</th>
+                    <th>Процент изменения</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in orderTotalPriceChanges">
+                    <td>{{ entry.partName }}</td>
+                    <td>{{ entry.previousTotalPrice.toFixed(2) }}</td>
+                    <td>{{ entry.currentTotalPrice.toFixed(2) }}</td>
+                    <td>
+                      <PercentageChange :change="entry.change" />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -95,17 +142,42 @@
                   :options="chartCommonOptions"
                 />
               </div>
+
+              <v-sheet class="my-2">
+                Топ 20 изменений по количеству отмен:
+              </v-sheet>
+              <v-table>
+                <thead>
+                  <tr>
+                    <th>Артикул</th>
+                    <th>Отмен за предыдущий период</th>
+                    <th>Отмен за текущий период</th>
+                    <th>Процент изменения</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in orderCancelCountChanges">
+                    <td>{{ entry.partName }}</td>
+                    <td>{{ entry.previousCancelCount }}</td>
+                    <td>{{ entry.currentCancelCount }}</td>
+                    <td>
+                      <PercentageChange :change="entry.change" />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
+
       <v-col cols="12" sm="6" class="position-relative">
         <v-expansion-panels>
           <v-expansion-panel title="Средняя скидка по каждому артикулу">
             <v-expansion-panel-text>
               <div
                 :style="`position: relative; height: ${
-                  partNames.length * 20
+                  currentPeriodPartNames.length * 20
                 }px; width: 100%`"
               >
                 <Bar
@@ -113,6 +185,30 @@
                   :options="chartCommonOptions"
                 />
               </div>
+
+              <v-sheet class="my-2">
+                Топ 20 изменений по средней скидке:
+              </v-sheet>
+              <v-table>
+                <thead>
+                  <tr>
+                    <th>Артикул</th>
+                    <th>Средняя скидка за предыдущий период</th>
+                    <th>Средняя скидка за текущий период</th>
+                    <th>Процент изменения</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="entry in orderAverageDiscountChanges">
+                    <td>{{ entry.partName }}</td>
+                    <td>{{ entry.previousAverageDiscount.toFixed(2) }}</td>
+                    <td>{{ entry.currentAverageDiscount.toFixed(2) }}</td>
+                    <td>
+                      <PercentageChange :change="entry.change" />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -131,18 +227,28 @@ import {
   ordersListRequestUrl,
   type OrdersListResponse,
 } from "@/api/order/list";
-import orderCountPerPartName from "@/data/orderCountPerPartName";
-import orderTotalPricePerPartName from "@/data/orderTotalPricePerPartName";
-import orderCancelCountPerPartName from "@/data/orderCancelCountPerPartName";
-import orderAverageDiscountPerPartName from "@/data/orderAverageDiscountPerPartName";
+import orderCountPerPartName, {
+  compareOrderCounts,
+} from "@/data/orderCountPerPartName";
+import orderTotalPricePerPartName, {
+  compareOrderTotalPrices,
+} from "@/data/orderTotalPricePerPartName";
+import orderCancelCountPerPartName, {
+  compareOrderCancelCounts,
+} from "@/data/orderCancelCountPerPartName";
+import orderAverageDiscountPerPartName, {
+  compareOrderAverageDiscounts,
+} from "@/data/orderAverageDiscountPerPartName";
 
-// Last week
+// Last week by default
 const currentPeriodDateFrom = ref(subDays(new Date(), 7));
 const currentPeriodDateTo = ref(new Date());
 
-// The week before the last week
+// The week before the last week by default
 const previousPeriodDateFrom = ref(subDays(new Date(), 15));
 const previousPeriodDateTo = ref(subDays(new Date(), 8));
+
+// Fetching current period orders
 
 const currentPeriodUrl = computed(
   () =>
@@ -163,11 +269,6 @@ const {
   .get()
   .json<OrdersListResponse>();
 
-const { isLoading } = useNProgress();
-watch(currentPeriodIsFetching, (value) => {
-  isLoading.value = value;
-});
-
 const currentPeriodOrders = computed(() => {
   if (currentPeriodResponse.value == null) {
     return [];
@@ -175,7 +276,75 @@ const currentPeriodOrders = computed(() => {
   return currentPeriodResponse.value.data;
 });
 
-const partNames = computed(() => [
+// Fetching previous period orders
+
+const previousPeriodUrl = computed(
+  () =>
+    ordersListRequestUrl({
+      dateFrom: previousPeriodDateFrom.value,
+      dateTo: previousPeriodDateTo.value,
+      page: 1,
+      limit: 500,
+    }).href
+);
+
+const {
+  execute: previousPeriodExecute,
+  isFetching: previousPeriodIsFetching,
+  error: previousPeriodError,
+  data: previousPeriodResponse,
+} = useFetch(previousPeriodUrl, { refetch: true })
+  .get()
+  .json<OrdersListResponse>();
+
+const previousPeriodOrders = computed(() => {
+  if (previousPeriodResponse.value == null) {
+    return [];
+  }
+  return previousPeriodResponse.value.data;
+});
+
+// Loading bar
+
+const { isLoading } = useNProgress();
+watchEffect(() => {
+  isLoading.value =
+    currentPeriodIsFetching.value || previousPeriodIsFetching.value;
+});
+
+// Data for drawing tables comparing the current and the previous periods
+
+const orderCountsChanges = computed(() => {
+  return compareOrderCounts(
+    previousPeriodOrders.value,
+    currentPeriodOrders.value
+  ).slice(0, 20);
+});
+
+const orderTotalPriceChanges = computed(() => {
+  return compareOrderTotalPrices(
+    previousPeriodOrders.value,
+    currentPeriodOrders.value
+  ).slice(0, 20);
+});
+
+const orderCancelCountChanges = computed(() => {
+  return compareOrderCancelCounts(
+    previousPeriodOrders.value,
+    currentPeriodOrders.value
+  ).slice(0, 20);
+});
+
+const orderAverageDiscountChanges = computed(() => {
+  return compareOrderAverageDiscounts(
+    previousPeriodOrders.value,
+    currentPeriodOrders.value
+  ).slice(0, 20);
+});
+
+// Data for drawing charts for the current period
+
+const currentPeriodPartNames = computed(() => [
   ...new Set(currentPeriodOrders.value.map((item) => item.nm_id)),
 ]);
 
