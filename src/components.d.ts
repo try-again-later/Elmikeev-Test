@@ -10,6 +10,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    OrderAverageDiscounts: typeof import('./components/order_changes/OrderAverageDiscounts.vue')['default']
+    OrderCancels: typeof import('./components/order_changes/OrderCancels.vue')['default']
+    OrderPrices: typeof import('./components/order_changes/OrderPrices.vue')['default']
+    OrderSales: typeof import('./components/order_changes/OrderSales.vue')['default']
     PercentageChange: typeof import('./components/PercentageChange.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

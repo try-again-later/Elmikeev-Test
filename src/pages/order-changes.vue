@@ -1,5 +1,6 @@
 <template>
-  <h1 class="mb-8">Главная</h1>
+  <h1 class="mb-8">Изменения по показателю по заказам</h1>
+
   <v-sheet class="mb-2">Текущий период:</v-sheet>
   <v-row>
     <v-col cols="12" sm="6">
@@ -73,69 +74,27 @@
     <v-btn @click="orders.retry">Попробовать ещё раз</v-btn>
   </v-sheet>
   <template v-if="!orders.hasError">
-    <v-row>
-      <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Количество продаж по каждому артикулу">
-            <v-expansion-panel-text>
-              <OrderSales :show-full-table="false" />
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </v-col>
-
-      <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel
-            title="Суммарная стоимость продаж по каждому артикулу"
-          >
-            <v-expansion-panel-text>
-              <OrderPrices :show-full-table="false" />
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Количество отмен по каждому артикулу">
-            <v-expansion-panel-text>
-              <OrderCancels :show-full-table="false" />
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </v-col>
-
-      <v-col cols="12" sm="6" class="position-relative">
-        <v-expansion-panels>
-          <v-expansion-panel title="Средняя скидка по каждому артикулу">
-            <v-expansion-panel-text>
-              <OrderAverageDiscounts :show-full-table="false" />
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </v-col>
-    </v-row>
+    <template v-if="$route.params.type == 'sales'">
+      <OrderSales :show-full-table="true" />
+    </template>
+    <template v-else-if="$route.params.type == 'prices'">
+      <OrderPrices :show-full-table="true" />
+    </template>
+    <template v-else-if="$route.params.type == 'cancels'">
+      <OrderCancels :show-full-table="true" />
+    </template>
+    <template v-else-if="$route.params.type == 'average-discounts'">
+      <OrderAverageDiscounts :show-full-table="true" />
+    </template>
   </template>
 </template>
 
 <script setup lang="ts">
-import { useNProgress } from "@vueuse/integrations/useNProgress";
-
 import OrderSales from "@/components/order_changes/OrderSales.vue";
 import OrderPrices from "@/components/order_changes/OrderPrices.vue";
 import OrderCancels from "@/components/order_changes/OrderCancels.vue";
 import OrderAverageDiscounts from "@/components/order_changes/OrderAverageDiscounts.vue";
-
 import { useOrderPeriodChanges } from "@/stores/orderPeriodChanges";
 
 const orders = useOrderPeriodChanges();
-
-// Loading bar
-
-const { isLoading } = useNProgress();
-watchEffect(() => {
-  isLoading.value = orders.isFetching;
-});
 </script>

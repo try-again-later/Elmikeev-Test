@@ -68,7 +68,7 @@ const navItems = [
   },
   {
     title: "Продажи",
-    route: "sales",
+    route: "/sales",
     icon: "mdi-cash-plus",
     get query() {
       const { dateFrom, dateTo, page, totalPriceRange } = storeToRefs(
@@ -96,7 +96,7 @@ const navItems = [
   },
   {
     title: "Заказы",
-    route: "orders",
+    route: "/orders",
     icon: "mdi-cart",
     get query() {
       const { dateFrom, dateTo, page, warehouseNamesFilter } = storeToRefs(
@@ -122,7 +122,7 @@ const navItems = [
   },
   {
     title: "Склады",
-    route: "stocks",
+    route: "/stocks",
     icon: "mdi-warehouse",
     get query() {
       const { page, inWayFromClient, inWayToClient } = storeToRefs(
@@ -141,7 +141,7 @@ const navItems = [
   },
   {
     title: "Доходы",
-    route: "incomes",
+    route: "/incomes",
     icon: "mdi-hand-coin",
     get query() {
       const { dateFrom, dateTo, page, quantityRange } = storeToRefs(
