@@ -1,1 +1,0 @@
-import{ae as i,A as t}from"./index-D1QMmaq8.js";const F=i("saleFilters",()=>{const e=t(null),r=t(null),o=t(null),n=t(null),l=t([]),s=t([]),a=t([]),c=t([]);return{dateFrom:e,dateTo:r,page:o,totalPriceRange:n,partNamesFilter:l,regionFilter:s,brandFilter:a,categoryFilter:c}});export{F as u};
