@@ -1,0 +1,1 @@
+import{au as i,A as t}from"./index-CytsL7lF.js";const l=i("stockFilters",()=>{const e=t(null),o=t("Не важно"),r=t("Не важно"),n=t([]),s=t([]),a=t([]);return{page:e,inWayToClient:o,inWayFromClient:r,partNamesFilter:n,brandFilter:s,categoryFilter:a}});export{l as u};
