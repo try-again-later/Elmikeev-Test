@@ -17,6 +17,7 @@
 
   <v-btn
     variant="outlined"
+    size="x-small"
     class="my-4"
     v-if="!showFullTable"
     :to="{ path: '/order-changes/prices' }"

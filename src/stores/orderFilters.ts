@@ -9,6 +9,7 @@ export const useOrderFiltersStore = defineStore("orderFilters", () => {
   const partNamesFilter = ref<number[]>([]);
   const brandFilter = ref<string[]>([]);
   const categoryFilter = ref<string[]>([]);
+  const regionFilter = ref<string[]>([]);
 
   return {
     dateFrom,
@@ -18,5 +19,6 @@ export const useOrderFiltersStore = defineStore("orderFilters", () => {
     partNamesFilter,
     brandFilter,
     categoryFilter,
+    regionFilter,
   };
 });

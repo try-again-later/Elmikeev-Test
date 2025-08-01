@@ -74,7 +74,16 @@
           <th>Полная сумма</th>
           <th>Скидка</th>
           <th>Отменён</th>
-          <th>Регион</th>
+          <th>
+            <v-select
+              v-model="regionFilter"
+              :items="regions"
+              min-width="200"
+              max-width="400"
+              label="Регион"
+              multiple
+            ></v-select>
+          </th>
           <th>Склад</th>
         </tr>
       </thead>
@@ -188,6 +197,9 @@ const brandFilter = ref<string[]>(filtersStore.brandFilter);
 const categories = ref<string[]>([]);
 const categoryFilter = ref<string[]>(filtersStore.categoryFilter);
 
+const regions = ref<string[]>([]);
+const regionFilter = ref<string[]>(filtersStore.regionFilter);
+
 watchEffect(() => {
   filtersStore.dateFrom = dateFrom.value;
   filtersStore.dateTo = dateTo.value;
@@ -202,6 +214,7 @@ watchEffect(() => {
   filtersStore.partNamesFilter = partNamesFilter.value;
   filtersStore.brandFilter = brandFilter.value;
   filtersStore.categoryFilter = categoryFilter.value;
+  filtersStore.regionFilter = regionFilter.value;
 });
 
 watch(response, (newResponse) => {
@@ -239,6 +252,13 @@ watch(response, (newResponse) => {
         ...categoryFilter.value,
       ]),
     ];
+
+    regions.value = [
+      ...new Set([
+        ...newResponse.data.map((item) => item.oblast),
+        ...regionFilter.value,
+      ]),
+    ];
   }
 });
 
@@ -254,7 +274,9 @@ const filteredData = computed(() => {
       (brandFilter.value.length == 0 ||
         brandFilter.value.includes(item.brand)) &&
       (categoryFilter.value.length == 0 ||
-        categoryFilter.value.includes(item.category))
+        categoryFilter.value.includes(item.category)) &&
+      (regionFilter.value.length == 0 ||
+        regionFilter.value.includes(item.oblast))
   );
 });
 
